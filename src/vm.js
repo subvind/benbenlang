@@ -1,4 +1,4 @@
-// Types of nodes in the interaction net
+// ./src/vm.js
 const NodeType = {
   LAM: 'LAM',   // Lambda abstraction
   APP: 'APP',   // Application
@@ -48,6 +48,9 @@ class InteractionNet {
 
   // Connect two ports together
   connect(port1, port2) {
+    if (!port1 || !port2) {
+      throw new Error('Cannot connect undefined ports');
+    }
     port1.link = port2;
     port2.link = port1;
     
@@ -59,6 +62,9 @@ class InteractionNet {
 
   // Set up an uplink between ports
   setUplink(fromPort, toPort) {
+    if (!fromPort || !toPort) {
+      throw new Error('Cannot set uplink with undefined ports');
+    }
     fromPort.uplink = toPort;
   }
 
@@ -92,18 +98,28 @@ class InteractionNet {
   reduce() {
     if (this.active.size === 0) return false;
     
-    const [node1, node2] = this.active.values().next().value;
-    this.active.delete([node1, node2]);
+    const activePair = Array.from(this.active)[0];
+    this.active.delete(activePair);
+    const [node1, node2] = activePair;
 
     switch(true) {
       case node1.type === NodeType.LAM && node2.type === NodeType.APP:
         this.reduceLamApp(node1, node2);
         break;
+      case node2.type === NodeType.LAM && node1.type === NodeType.APP:
+        this.reduceLamApp(node2, node1);
+        break;
       case node1.type === NodeType.DUP && node2.type === NodeType.APP:
         this.reduceDupApp(node1, node2);
         break;
+      case node2.type === NodeType.DUP && node1.type === NodeType.APP:
+        this.reduceDupApp(node2, node1);
+        break;
       case node1.type === NodeType.DUP && node2.type === NodeType.LAM:
         this.reduceDupLam(node1, node2);
+        break;
+      case node2.type === NodeType.DUP && node1.type === NodeType.LAM:
+        this.reduceDupLam(node2, node1);
         break;
     }
 
@@ -116,7 +132,10 @@ class InteractionNet {
     this.connect(lam.ports[1], app.ports[2]);
     
     // Connect lambda's body to application's function
-    this.connect(lam.ports[0].uplink, app.ports[1]);
+    const uplinkedPort = lam.ports[0].uplink;
+    if (uplinkedPort) {
+      this.connect(uplinkedPort, app.ports[1]);
+    }
 
     // Clean up
     this.nodes.delete(lam);
@@ -141,8 +160,11 @@ class InteractionNet {
     this.connect(newApp2.ports[0], dup.ports[2]);
 
     // Connect arguments
-    this.connect(newApp1.ports[2], app.ports[2].uplink);
-    this.connect(newApp2.ports[2], app.ports[2].uplink);
+    const argUplink = app.ports[2].uplink;
+    if (argUplink) {
+      this.connect(newApp1.ports[2], argUplink);
+      this.connect(newApp2.ports[2], argUplink);
+    }
 
     // Clean up
     this.nodes.delete(dup);
@@ -167,8 +189,11 @@ class InteractionNet {
     this.connect(newLam2.ports[0], dup.ports[2]);
 
     // Set up uplinks for the new lambda bodies
-    this.setUplink(newLam1.ports[0], lam.ports[0].uplink);
-    this.setUplink(newLam2.ports[0], lam.ports[0].uplink);
+    const bodyUplink = lam.ports[0].uplink;
+    if (bodyUplink) {
+      this.setUplink(newLam1.ports[0], bodyUplink);
+      this.setUplink(newLam2.ports[0], bodyUplink);
+    }
 
     // Clean up
     this.nodes.delete(dup);
@@ -177,7 +202,12 @@ class InteractionNet {
 
   // Run the machine until no more reductions are possible
   normalForm() {
-    while (this.reduce()) {}
+    let steps = 0;
+    while (this.reduce()) {
+      steps++;
+      if (steps > 1000) throw new Error('Reduction exceeded 1000 steps - possible infinite loop');
+    }
+    return steps;
   }
 }
 

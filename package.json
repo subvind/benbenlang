@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "index.js",
   "scripts": {
-    "example:demo": "node ./examples/demo.js"
+    "example:demo": "node ./examples/demo.js 2>&1 | tee example:demo.stdout.txt"
   },
   "author": "",
   "license": "UNLICENSED",

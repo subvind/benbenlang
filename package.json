@@ -5,10 +5,14 @@
   "scripts": {
     "example:demo": "node ./examples/demo.js 2>&1 | tee example:demo.stdout.txt",
     "example:demoArithmetic": "node ./examples/demoArithmetic.js 2>&1 | tee example:demoArithmetic.stdout.txt",
+    "example:demoBoolean": "node ./examples/demoBoolean.js 2>&1 | tee example:demoBoolean.stdout.txt",
     "example:demoConstant": "node ./examples/demoConstant.js 2>&1 | tee example:demoConstant.stdout.txt",
     "example:demoErasure": "node ./examples/demoErasure.js 2>&1 | tee example:demoErasure.stdout.txt",
+    "example:demoFst": "node ./examples/demoFst.js 2>&1 | tee example:demoFst.stdout.txt",
     "example:demoIdentity": "node ./examples/demoIdentity.js 2>&1 | tee example:demoIdentity.stdout.txt",
-    "example:demoSelfApp": "node ./examples/demoSelfApp.js 2>&1 | tee example:demoSelfApp.stdout.txt"
+    "example:demoPair": "node ./examples/demoPair.js 2>&1 | tee example:demoPair.stdout.txt",
+    "example:demoSelfApp": "node ./examples/demoSelfApp.js 2>&1 | tee example:demoSelfApp.stdout.txt",
+    "example:demoSnd": "node ./examples/demoSnd.js 2>&1 | tee example:demoSnd.stdout.txt"
   },
   "author": "",
   "license": "UNLICENSED",

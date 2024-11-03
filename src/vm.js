@@ -10,7 +10,7 @@ const NodeType = {
   PAIR: 'PAIR', // Pair constructor
   FST: 'FST',   // First projection
   SND: 'SND',   // Second projection
-  OPE: 'OPE'      // Built-in operator
+  OPE: 'OPE'    // Built-in operator
 };
 
 // Represents a port in the interaction net

@@ -1,0 +1,35 @@
+
+=== Example 1: Identity function (λx.x) y ===
+
+Current network state:
+Node LAM:
+  Port 0: positive
+    -> linked to: APP:none
+    -> uplinked to: LAM:1
+  Port 1: negative
+    -> linked to: none:none
+    -> uplinked to: none:none
+Node APP:
+  Port 0: negative
+    -> linked to: LAM:none
+    -> uplinked to: none:none
+  Port 1: positive
+    -> linked to: none:none
+    -> uplinked to: none:none
+  Port 2: positive
+    -> linked to: VAR:none
+    -> uplinked to: none:none
+Node VAR:
+  Port 0: negative
+    -> linked to: APP:2
+    -> uplinked to: none:none
+
+Active pairs: 1
+
+Current network state:
+Node VAR:
+  Port 0: negative
+    -> linked to: APP:2
+    -> uplinked to: none:none
+
+Active pairs: 0

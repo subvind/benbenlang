@@ -3,7 +3,12 @@
   "version": "0.0.1",
   "main": "index.js",
   "scripts": {
-    "example:demo": "node ./examples/demo.js 2>&1 | tee example:demo.stdout.txt"
+    "example:demo": "node ./examples/demo.js 2>&1 | tee example:demo.stdout.txt",
+    "example:demoArithmetic": "node ./examples/demoArithmetic.js 2>&1 | tee example:demoArithmetic.stdout.txt",
+    "example:demoConstant": "node ./examples/demoConstant.js 2>&1 | tee example:demoConstant.stdout.txt",
+    "example:demoErasure": "node ./examples/demoErasure.js 2>&1 | tee example:demoErasure.stdout.txt",
+    "example:demoIdentity": "node ./examples/demoIdentity.js 2>&1 | tee example:demoIdentity.stdout.txt",
+    "example:demoSelfApp": "node ./examples/demoSelfApp.js 2>&1 | tee example:demoSelfApp.stdout.txt"
   },
   "author": "",
   "license": "UNLICENSED",

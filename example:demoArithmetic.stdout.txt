@@ -1,0 +1,22 @@
+
+=== Example 4: Arithmetic (5 + 3) ===
+
+Current network state:
+Node CON:
+  Port 0: negative
+    -> linked to: CON:none
+    -> uplinked to: none:none
+Node CON:
+  Port 0: negative
+    -> linked to: CON:none
+    -> uplinked to: none:none
+
+Active pairs: 1
+
+Current network state:
+Node CON:
+  Port 0: negative
+    -> linked to: none:none
+    -> uplinked to: none:none
+
+Active pairs: 0

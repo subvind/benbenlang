@@ -3,9 +3,14 @@ const NodeType = {
   LAM: 'LAM',   // Lambda abstraction
   APP: 'APP',   // Application
   VAR: 'VAR',   // Variable
-  DUP: 'DUP',    // Duplicator
-  ERA: 'ERA',    // Eraser (for garbage collection)
-  CON: 'CON'     // Constant (for built-in values)
+  DUP: 'DUP',   // Duplicator
+  ERA: 'ERA',   // Eraser (for garbage collection)
+  NUM: 'NUM',   // Number constant (for built-in values)
+  BOOL: 'BOOL', // Boolean constant
+  PAIR: 'PAIR', // Pair constructor
+  FST: 'FST',   // First projection
+  SND: 'SND',   // Second projection
+  OPE: 'OPE'      // Built-in operator
 };
 
 // Represents a port in the interaction net
@@ -103,11 +108,54 @@ class InteractionNet {
     return node;
   }
 
-  // Create a constant node
-  createCon(value) {
-    const node = this.createNode(NodeType.CON);
+  // Create a number constant node
+  createNum(value) {
+    const node = this.createNode(NodeType.NUM);
     node.addPort(false);  // Principal port (negative)
     node.value = value;   // Store constant value
+    return node;
+  }
+
+  // Create a boolean constant node
+  createBool(value) {
+    const node = this.createNode(NodeType.BOOL);
+    node.addPort(false);  // Principal port
+    node.value = value;   // Store boolean value
+    return node;
+  }
+
+  // Create a pair constructor node
+  createPair() {
+    const node = this.createNode(NodeType.PAIR);
+    node.addPort(false);  // Principal port
+    node.addPort(true);   // First element
+    node.addPort(true);   // Second element
+    return node;
+  }
+
+  // Create a first projection node
+  createFst() {
+    const node = this.createNode(NodeType.FST);
+    node.addPort(false);  // Principal port
+    node.addPort(true);   // Result port
+    return node;
+  }
+
+  // create a second projection node
+  createSnd() {
+    const node = this.createNode(NodeType.SND);
+    node.addPort(false);  // Principal port
+    node.addPort(true);   // Result port
+    return node;
+  }
+
+  // Create an built-in operation node
+  createOp(operation) {
+    const node = this.createNode(NodeType.OP);
+    node.addPort(false);  // Principal port
+    node.addPort(true);   // Left operand
+    node.addPort(true);   // Right operand
+    node.operation = operation;  // Store operation type
     return node;
   }
 
@@ -182,8 +230,8 @@ class InteractionNet {
       case NodeType.DUP:
         this.reduceEraDup(era, other);
         return true;
-      case NodeType.CON:
-        this.reduceEraCon(era, other);
+      case NodeType.NUM:
+        this.reduceEraNum(era, other);
         return true;
       case NodeType.ERA:
         this.nodes.delete(era);
@@ -195,20 +243,17 @@ class InteractionNet {
 
   // Reduce try constant
   tryConstantReduction(node1, node2) {
-    if (node1.type !== NodeType.CON && node2.type !== NodeType.CON) return false;
-    
-    const con = node1.type === NodeType.CON ? node1 : node2;
-    const other = node1.type === NodeType.CON ? node2 : node1;
-
-    switch(other.type) {
-      case NodeType.DUP:
-        this.reduceConDup(con, other);
-        return true;
-      case NodeType.CON:
-        this.reduceConCon(con, other);
-        return true;
+    if (!super.tryConstantReduction(node1, node2)) {
+      // Handle new constant types
+      if (node1.type === NodeType.OP || node2.type === NodeType.OP) {
+        return this.reduceOperation(
+          node1.type === NodeType.OP ? node1 : node2,
+          node1.type === NodeType.OP ? node2 : node1
+        );
+      }
+      return false;
     }
-    return false;
+    return true;
   }
 
   // Reduce lambda-application pair
@@ -326,38 +371,96 @@ class InteractionNet {
     this.nodes.delete(dup);
   }
 
-  reduceEraCon(era, con) {
+  reduceEraNum(era, num) {
     this.nodes.delete(era);
-    this.nodes.delete(con);
+    this.nodes.delete(num);
   }
 
-  reduceConDup(con, dup) {
-    const newCon1 = this.createCon(con.value);
-    const newCon2 = this.createCon(con.value);
-    this.connect(newCon1.ports[0], dup.ports[1]);
-    this.connect(newCon2.ports[0], dup.ports[2]);
-    this.nodes.delete(con);
+  reduceNumDup(num, dup) {
+    const newNum1 = this.createNum(num.value);
+    const newNum2 = this.createNum(num.value);
+    this.connect(newNum1.ports[0], dup.ports[1]);
+    this.connect(newNum2.ports[0], dup.ports[2]);
+    this.nodes.delete(num);
     this.nodes.delete(dup);
   }
 
-  reduceConCon(con1, con2) {
+  reduceNumNUm(num1, num2) {
     // Handle built-in operations between constants
-    const result = this.evaluateConstants(con1.value, con2.value);
-    const resultNode = this.createCon(result);
+    const result = this.evaluateConstants(num1.value, num2.value);
+    const resultNode = this.createNum(result);
     
     // Connect result to any waiting computations
-    if (con1.ports[0].uplink) {
-      this.connect(resultNode.ports[0], con1.ports[0].uplink);
+    if (num1.ports[0].uplink) {
+      this.connect(resultNode.ports[0], num1.ports[0].uplink);
     }
     
-    this.nodes.delete(con1);
-    this.nodes.delete(con2);
+    this.nodes.delete(num1);
+    this.nodes.delete(num2);
+  }
+
+  reduceOperation(op, arg) {
+    switch(op.operation) {
+      case 'add':
+      case 'mul':
+      case 'sub':
+      case 'div':
+        return this.reduceArithmeticOp(op, arg);
+      case 'and':
+      case 'or':
+      case 'not':
+        return this.reduceBooleanOp(op, arg);
+      default:
+        throw new Error(`Unknown operation: ${op.operation}`);
+    }
+  }
+
+  reduceArithmeticOp(op, arg) {
+    if (arg.type !== NodeType.NUM) return false;
+    
+    const operations = {
+      'add': (a, b) => a + b,
+      'mul': (a, b) => a * b,
+      'sub': (a, b) => a - b,
+      'div': (a, b) => a / b
+    };
+
+    const result = this.createNum(operations[op.operation](op.value, arg.value));
+    if (op.ports[0].uplink) {
+      this.connect(result.ports[0], op.ports[0].uplink);
+    }
+    
+    this.nodes.delete(op);
+    this.nodes.delete(arg);
+    return true;
+  }
+
+  reduceBooleanOp(op, arg) {
+    if (arg.type !== NodeType.BOOL) return false;
+    
+    const operations = {
+      'and': (a, b) => a && b,
+      'or': (a, b) => a || b,
+      'not': a => !a
+    };
+
+    const result = this.createBool(operations[op.operation](op.value, arg.value));
+    if (op.ports[0].uplink) {
+      this.connect(result.ports[0], op.ports[0].uplink);
+    }
+    
+    this.nodes.delete(op);
+    this.nodes.delete(arg);
+    return true;
   }
 
   evaluateConstants(val1, val2) {
     // Simple arithmetic operations as an example
     if (typeof val1 === 'number' && typeof val2 === 'number') {
-      return val1 + val2; // Could be extended for other operations
+      return val1 + val2;
+    }
+    if (typeof val1 === 'boolean' && typeof val2 === 'boolean') {
+      return val1 && val2; // Example boolean operation
     }
     return null;
   }
@@ -373,4 +476,44 @@ class InteractionNet {
   }
 }
 
-module.exports = { InteractionNet, NodeType };
+// Example of Y combinator implementation
+function createYCombinator(net) {
+  // Y = λf.((λx.f (x x)) (λx.f (x x)))
+  const f = net.createNode(NodeType.VAR);
+  f.addPort(false);
+
+  // Create the main lambda (λf.)
+  const mainLam = net.createLam();
+  
+  // Create the duplicator for the inner term
+  const dup = net.createDup();
+  
+  // Create the inner lambda (λx.)
+  const innerLam = net.createLam();
+  
+  // Create application nodes
+  const app1 = net.createApp();  // Outer application
+  const app2 = net.createApp();  // Inner application (x x)
+  const app3 = net.createApp();  // f (...)
+  
+  // Connect everything together
+  net.connect(mainLam.ports[1], f.ports[0]);
+  net.connect(app1.ports[0], mainLam.ports[0]);
+  net.connect(app1.ports[1], innerLam.ports[0]);
+  net.connect(app1.ports[2], innerLam.ports[0]);
+  
+  net.connect(app2.ports[1], dup.ports[1]);
+  net.connect(app2.ports[2], dup.ports[2]);
+  net.connect(dup.ports[0], innerLam.ports[1]);
+  
+  net.connect(app3.ports[1], f.ports[0]);
+  net.connect(app3.ports[2], app2.ports[0]);
+  
+  return mainLam;
+}
+
+module.exports = {
+  InteractionNet,
+  NodeType,
+  createYCombinator
+};

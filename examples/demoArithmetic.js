@@ -6,10 +6,10 @@ function demoArithmetic() {
   console.log('\n=== Example 4: Arithmetic (5 + 3) ===');
   const net = new InteractionNet();
   
-  const con1 = net.createCon(5);
-  const con2 = net.createCon(3);
+  const num1 = net.createNum(5);
+  const num2 = net.createNum(3);
   
-  net.connect(con1.ports[0], con2.ports[0]);
+  net.connect(num1.ports[0], num2.ports[0]);
   
   printNet(net);
   net.normalForm();

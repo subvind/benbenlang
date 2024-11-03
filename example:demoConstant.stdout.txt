@@ -5,7 +5,7 @@ Current network state:
 Node LAM:
   Port 0: positive
     -> linked to: APP:none
-    -> uplinked to: CON:none
+    -> uplinked to: NUM:none
   Port 1: negative
     -> linked to: none:none
     -> uplinked to: none:none
@@ -19,7 +19,7 @@ Node APP:
   Port 2: positive
     -> linked to: VAR:none
     -> uplinked to: none:none
-Node CON:
+Node NUM:
   Port 0: negative
     -> linked to: none:none
     -> uplinked to: none:none
@@ -31,7 +31,7 @@ Node VAR:
 Active pairs: 1
 
 Current network state:
-Node CON:
+Node NUM:
   Port 0: negative
     -> linked to: APP:1
     -> uplinked to: none:none

@@ -8,13 +8,13 @@ function demoConstant() {
   
   const lam = net.createLam();
   const app = net.createApp();
-  const con = net.createCon(5);
+  const num = net.createNum(5);
   const varY = net.createNode(NodeType.VAR);
   varY.addPort(false);
   
   net.connect(app.ports[0], lam.ports[0]);
   net.connect(app.ports[2], varY.ports[0]);
-  net.setUplink(lam.ports[0], con.ports[0]);
+  net.setUplink(lam.ports[0], num.ports[0]);
   
   printNet(net);
   net.normalForm();

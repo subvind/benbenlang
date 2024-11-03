@@ -1,9 +1,8 @@
 const { InteractionNet, NodeType } = require('../src/vm.js');
 const { printNet } = require('../helpers/printNet.js');
 
-// Example 4: Pair (true false)
 function demoPair() {
-  console.log('\n=== Example 4: Pair (true false) ===');
+  console.log('\n=== Pair (true false) ===');
   const net = new InteractionNet();
   
   // Create a pair

@@ -151,7 +151,7 @@ class InteractionNet {
 
   // Create an built-in operation node
   createOp(operation) {
-    const node = this.createNode(NodeType.OP);
+    const node = this.createNode(NodeType.OPE);
     node.addPort(false);  // Principal port
     node.addPort(true);   // Left operand
     node.addPort(true);   // Right operand
@@ -243,18 +243,95 @@ class InteractionNet {
 
   // Reduce try constant
   tryConstantReduction(node1, node2) {
-    if (!super.tryConstantReduction(node1, node2)) {
-      // Handle new constant types
-      if (node1.type === NodeType.OP || node2.type === NodeType.OP) {
-        return this.reduceOperation(
-          node1.type === NodeType.OP ? node1 : node2,
-          node1.type === NodeType.OP ? node2 : node1
-        );
-      }
-      return false;
+    // Handle pair projections
+    if ((node1.type === NodeType.FST && node2.type === NodeType.PAIR) ||
+        (node2.type === NodeType.FST && node1.type === NodeType.PAIR)) {
+      this.reduceFstPair(
+        node1.type === NodeType.FST ? node1 : node2,
+        node1.type === NodeType.PAIR ? node1 : node2
+      );
+      return true;
     }
-    return true;
+    
+    if ((node1.type === NodeType.SND && node2.type === NodeType.PAIR) ||
+        (node2.type === NodeType.SND && node1.type === NodeType.PAIR)) {
+      this.reduceSndPair(
+        node1.type === NodeType.SND ? node1 : node2,
+        node1.type === NodeType.PAIR ? node1 : node2
+      );
+      return true;
+    }
+  
+    // Handle numeric operations
+    if ((node1.type === NodeType.NUM && node2.type === NodeType.NUM) ||
+        (node1.type === NodeType.NUM && node2.type === NodeType.DUP) ||
+        (node2.type === NodeType.NUM && node1.type === NodeType.DUP)) {
+      if (node1.type === NodeType.NUM && node2.type === NodeType.NUM) {
+        this.reduceNumNum(node1, node2);
+        return true;
+      }
+      if (node1.type === NodeType.NUM && node2.type === NodeType.DUP) {
+        this.reduceNumDup(node1, node2);
+        return true;
+      }
+      if (node2.type === NodeType.NUM && node1.type === NodeType.DUP) {
+        this.reduceNumDup(node2, node1);
+        return true;
+      }
+    }
+  
+    // Handle operation nodes
+    if (node1.type === NodeType.OP || node2.type === NodeType.OP) {
+      return this.reduceOperation(
+        node1.type === NodeType.OP ? node1 : node2,
+        node1.type === NodeType.OP ? node2 : node1
+      );
+    }
+  
+    return false;
   }
+  
+  // Add these new reduction methods
+  reduceFstPair(fst, pair) {
+    // Connect FST result port to first element of pair
+    this.connect(fst.ports[1], pair.ports[1]);
+    
+    // Create eraser for second element
+    const era = this.createEra();
+    this.connect(era.ports[0], pair.ports[2]);
+    
+    // Clean up
+    this.nodes.delete(fst);
+    this.nodes.delete(pair);
+  }
+  
+  reduceSndPair(snd, pair) {
+    // Connect SND result port to second element of pair
+    this.connect(snd.ports[1], pair.ports[2]);
+    
+    // Create eraser for first element
+    const era = this.createEra();
+    this.connect(era.ports[0], pair.ports[1]);
+    
+    // Clean up
+    this.nodes.delete(snd);
+    this.nodes.delete(pair);
+  }
+  
+  // Fix typo in method name (was reduceNumNUm)
+  reduceNumNum(num1, num2) {
+    // Handle built-in operations between constants
+    const result = this.evaluateConstants(num1.value, num2.value);
+    const resultNode = this.createNum(result);
+    
+    // Connect result to any waiting computations
+    if (num1.ports[0].uplink) {
+      this.connect(resultNode.ports[0], num1.ports[0].uplink);
+    }
+    
+    this.nodes.delete(num1);
+    this.nodes.delete(num2);
+  }  
 
   // Reduce lambda-application pair
   reduceLamApp(lam, app) {

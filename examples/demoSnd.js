@@ -1,9 +1,8 @@
 const { InteractionNet, NodeType } = require('../src/vm.js');
 const { printNet } = require('../helpers/printNet.js');
 
-// Example 4: Second (5 10)
 function demoFst() {
-  console.log('\n=== Example 4: Second (5 10) ===');
+  console.log('\n=== Second (5 10) ===');
   const net = new InteractionNet();
   
   // Create a pair

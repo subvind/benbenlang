@@ -1,9 +1,8 @@
 const { InteractionNet, NodeType } = require('../src/vm.js');
 const { printNet } = require('../helpers/printNet.js');
 
-// Example 4: Boolean (true and false)
 function demoBoolean() {
-  console.log('\n=== Example 4: Boolean (true and false) ===');
+  console.log('\n=== Boolean (true and false) ===');
   const net = new InteractionNet();
   
   const true1 = net.createBool(true);

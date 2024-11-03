@@ -5,20 +5,20 @@ Initial state:
 Current network state:
 Node LAM:
   Port 0: positive
-    -> linked to: APP:none
+    -> linked to: APP:0
     -> uplinked to: LAM:1
   Port 1: negative
     -> linked to: none:none
     -> uplinked to: none:none
 Node APP:
   Port 0: negative
-    -> linked to: LAM:none
+    -> linked to: LAM:0
     -> uplinked to: none:none
   Port 1: positive
     -> linked to: none:none
     -> uplinked to: none:none
   Port 2: positive
-    -> linked to: VAR:none
+    -> linked to: VAR:0
     -> uplinked to: none:none
 Node VAR:
   Port 0: negative
@@ -47,20 +47,20 @@ Initial state:
 Current network state:
 Node LAM:
   Port 0: positive
-    -> linked to: APP:none
+    -> linked to: APP:0
     -> uplinked to: none:none
   Port 1: negative
-    -> linked to: DUP:none
+    -> linked to: DUP:0
     -> uplinked to: none:none
 Node APP:
   Port 0: negative
-    -> linked to: LAM:none
+    -> linked to: LAM:0
     -> uplinked to: none:none
   Port 1: positive
     -> linked to: none:none
     -> uplinked to: none:none
   Port 2: positive
-    -> linked to: VAR:none
+    -> linked to: VAR:0
     -> uplinked to: none:none
 Node APP:
   Port 0: negative

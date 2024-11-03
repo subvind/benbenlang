@@ -1,9 +1,8 @@
 const { InteractionNet, NodeType } = require('../src/vm.js');
 const { printNet } = require('../helpers/printNet.js');
 
-// Example 4: Arithmetic (5 + 3)
 function demoArithmetic() {
-  console.log('\n=== Example 4: Arithmetic (5 + 3) ===');
+  console.log('\n=== Arithmetic (5 + 3) ===');
   const net = new InteractionNet();
   
   const num1 = net.createNum(5);

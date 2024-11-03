@@ -1,9 +1,8 @@
 const { InteractionNet, NodeType } = require('../src/vm.js');
 const { printNet } = require('../helpers/printNet.js');
 
-// Example 5: Garbage collection with erasure ((λx.y) z)
 function demoErasure() {
-  console.log('\n=== Example 5: Garbage collection ((λx.y) z) ===');
+  console.log('\n=== Garbage collection with erasure ((λx.y) z) ===');
   const net = new InteractionNet();
   
   const lam = net.createLam();

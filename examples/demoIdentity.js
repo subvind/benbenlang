@@ -1,9 +1,8 @@
 const { InteractionNet, NodeType } = require('../src/vm.js');
 const { printNet } = require('../helpers/printNet.js');
 
-// Example 1: Identity function (λx.x) y
 function demoIdentity() {
-  console.log('\n=== Example 1: Identity function (λx.x) y ===');
+  console.log('\n=== Identity function (λx.x) y ===');
   const net = new InteractionNet();
   
   const lam = net.createLam();

@@ -4,28 +4,19 @@
 Current network state:
 Node NUM:
   Port 0: negative
-    -> linked to: NUM:none
+    -> linked to: NUM:0
     -> uplinked to: none:none
 Node NUM:
   Port 0: negative
-    -> linked to: NUM:none
+    -> linked to: NUM:0
     -> uplinked to: none:none
 
 Active pairs: 1
-/home/travis/Projects/benbenlang/src/vm.js:246
-    if (!super.tryConstantReduction(node1, node2)) {
-               ^
 
-TypeError: (intermediate value).tryConstantReduction is not a function
-    at InteractionNet.tryConstantReduction (/home/travis/Projects/benbenlang/src/vm.js:246:16)
-    at InteractionNet.reduce (/home/travis/Projects/benbenlang/src/vm.js:177:14)
-    at InteractionNet.normalForm (/home/travis/Projects/benbenlang/src/vm.js:471:17)
-    at demoArithmetic (/home/travis/Projects/benbenlang/examples/demoArithmetic.js:15:7)
-    at Object.<anonymous> (/home/travis/Projects/benbenlang/examples/demoArithmetic.js:19:1)
-    at Module._compile (node:internal/modules/cjs/loader:1469:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
-    at Module.load (node:internal/modules/cjs/loader:1288:32)
-    at Module._load (node:internal/modules/cjs/loader:1104:12)
-    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:174:12)
+Current network state:
+Node NUM:
+  Port 0: negative
+    -> linked to: none:none
+    -> uplinked to: none:none
 
-Node.js v20.17.0
+Active pairs: 0

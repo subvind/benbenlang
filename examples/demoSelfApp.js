@@ -1,9 +1,8 @@
 const { InteractionNet, NodeType } = require('../src/vm.js');
 const { printNet } = require('../helpers/printNet.js');
 
-// Example 2: Self-application (λx.x x) y
 function demoSelfApp() {
-  console.log('\n=== Example 2: Self-application (λx.x x) y ===');
+  console.log('\n=== Self-application (λx.x x) y ===');
   const net = new InteractionNet();
   
   const lam = net.createLam();

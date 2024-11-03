@@ -1,9 +1,8 @@
 const { InteractionNet, NodeType } = require('../src/vm.js');
 const { printNet } = require('../helpers/printNet.js');
 
-// Example 3: Constant function (λx.5)
 function demoConstant() {
-  console.log('\n=== Example 3: Constant function (λx.5) y ===');
+  console.log('\n=== Constant function (λx.5) y ===');
   const net = new InteractionNet();
   
   const lam = net.createLam();

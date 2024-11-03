@@ -1,0 +1,11 @@
+{
+  "name": "benbenlang",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "example:demo": "node ./examples/demo.js"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "description": ""
+}

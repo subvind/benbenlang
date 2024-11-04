@@ -1,41 +1,46 @@
-[DEBUG] Created node: Node(id=NaN, type=NUM, ports=0)
-[DEBUG] Created node: Node(id=NaN, type=NUM, ports=0)
+[DEBUG] Created node: Node(id=6, type=NUM, ports=0)
+[DEBUG] Created node: Node(id=7, type=NUM, ports=0)
+[DEBUG] Deleted node: Node(id=0, type=NUM, ports=1, value=5)
+[DEBUG] Deleted node: Node(id=3, type=DUP, ports=3)
 Reduction statistics: {
   steps: 1,
   duration: 4,
-  statistics: { reductions: 1, createdNodes: 8, deletedNodes: 0 }
+  statistics: { reductions: 1, createdNodes: 8, deletedNodes: 2 }
 }
 Final node type: APP
 null
-[DEBUG] Created node: Node(id=NaN, type=LAM, ports=0)
-[DEBUG] Created node: Node(id=NaN, type=DUP, ports=0)
-[DEBUG] Added active pair: Node(id=NaN, type=LAM, ports=2) - Node(id=NaN, type=DUP, ports=3)
-[DEBUG] Created node: Node(id=NaN, type=APP, ports=0)
-[DEBUG] Created node: Node(id=NaN, type=DUP, ports=0)
-[DEBUG] Added active pair: Node(id=NaN, type=DUP, ports=3) - Node(id=NaN, type=LAM, ports=2)
-[DEBUG] Created node: Node(id=NaN, type=NUM, ports=0)
-[DEBUG] Created node: Node(id=NaN, type=LAM, ports=0)
-[DEBUG] Created node: Node(id=NaN, type=LAM, ports=0)
-[DEBUG] Created node: Node(id=NaN, type=DUP, ports=0)
-[DEBUG] Created node: Node(id=NaN, type=LAM, ports=0)
-[DEBUG] Created node: Node(id=NaN, type=LAM, ports=0)
-[DEBUG] Created node: Node(id=NaN, type=DUP, ports=0)
+[DEBUG] Created node: Node(id=8, type=LAM, ports=0)
+[DEBUG] Created node: Node(id=9, type=DUP, ports=0)
+[DEBUG] Added active pair: Node(id=8, type=LAM, ports=2) - Node(id=9, type=DUP, ports=3)
+[DEBUG] Created node: Node(id=10, type=APP, ports=0)
+[DEBUG] Created node: Node(id=11, type=DUP, ports=0)
+[DEBUG] Added active pair: Node(id=11, type=DUP, ports=3) - Node(id=8, type=LAM, ports=2)
+[DEBUG] Created node: Node(id=12, type=NUM, ports=0)
+[DEBUG] Created node: Node(id=13, type=LAM, ports=0)
+[DEBUG] Created node: Node(id=14, type=LAM, ports=0)
+[DEBUG] Created node: Node(id=15, type=DUP, ports=0)
+[DEBUG] Deleted node: Node(id=9, type=DUP, ports=3)
+[DEBUG] Deleted node: Node(id=8, type=LAM, ports=2)
+[DEBUG] Invalid active pair, skipping reduction
 Reduction statistics: {
   steps: 2,
   duration: 0,
-  statistics: { reductions: 3, createdNodes: 19, deletedNodes: 0 }
+  statistics: { reductions: 2, createdNodes: 16, deletedNodes: 4 }
 }
 Final node type: APP
 null
-[DEBUG] Created node: Node(id=NaN, type=SWI, ports=0)
-[DEBUG] Created node: Node(id=NaN, type=BOOL, ports=0)
-[DEBUG] Created node: Node(id=NaN, type=NUM, ports=0)
-[DEBUG] Created node: Node(id=NaN, type=NUM, ports=0)
-[DEBUG] Added active pair: Node(id=NaN, type=SWI, ports=3) - Node(id=NaN, type=BOOL, ports=1)
-[DEBUG] Created node: Node(id=NaN, type=ERA, ports=0)
+[DEBUG] Created node: Node(id=16, type=SWI, ports=0)
+[DEBUG] Created node: Node(id=17, type=BOOL, ports=0)
+[DEBUG] Created node: Node(id=18, type=NUM, ports=0)
+[DEBUG] Created node: Node(id=19, type=NUM, ports=0)
+[DEBUG] Added active pair: Node(id=16, type=SWI, ports=3) - Node(id=17, type=BOOL, ports=1, value=true)
+[DEBUG] Created node: Node(id=20, type=ERA, ports=0)
+[DEBUG] Deleted node: Node(id=16, type=SWI, ports=3)
+[DEBUG] Deleted node: Node(id=17, type=BOOL, ports=1, value=true)
 Reduction statistics: {
   steps: 1,
   duration: 0,
-  statistics: { reductions: 4, createdNodes: 24, deletedNodes: 0 }
+  statistics: { reductions: 3, createdNodes: 21, deletedNodes: 6 }
 }
-true
+Final node type: SWI
+null

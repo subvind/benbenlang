@@ -56,7 +56,10 @@ class Node {
     this.isActive = true;   // Whether this node can participate in reductions
     this._id = Node.nextId++; // Unique ID for debugging
     this.metadata = {}; // Extensible metadata storage
+    this.value = null;  // For storing constant values
   }
+
+  static nextId = 0;
 
   // Create a new port on this node
   addPort(isPositive) {
@@ -75,7 +78,7 @@ class Node {
 
   // Debug representation
   toString() {
-    return `Node(id=${this._id}, type=${this.type}, ports=${this.ports.length})`;
+    return `Node(id=${this._id}, type=${this.type}, ports=${this.ports.length}${this.value !== null ? `, value=${this.value}` : ''})`;
   }
 }
 
@@ -245,8 +248,15 @@ class InteractionNet {
   createOp(operation) {
     const node = this.createNode(NodeType.OPE);
     node.addPort(false);  // Principal port
-    node.addPort(true);   // Left operand
-    node.addPort(true);   // Right operand
+
+    // For unary operations (like 'not'), we only need one operand port
+    if (operation === 'not') {
+      node.addPort(true);  // Single operand
+    } else {
+      node.addPort(true);  // Left operand
+      node.addPort(true);  // Right operand
+    }
+    
     node.operation = operation;  // Store operation type
     return node;
   }
@@ -397,8 +407,8 @@ class InteractionNet {
         this.reduceEraNum(era, other);
         return true;
       case NodeType.ERA:
-        this.nodes.delete(era);
-        this.nodes.delete(other);
+        this.deleteNode(era);
+        this.deleteNode(other);
         return true;
     }
     return false;
@@ -487,8 +497,8 @@ class InteractionNet {
     this.connect(era.ports[0], pair.ports[2]);
     
     // Clean up
-    this.nodes.delete(fst);
-    this.nodes.delete(pair);
+    this.deleteNode(fst);
+    this.deleteNode(pair);
   }
   
   reduceSndPair(snd, pair) {
@@ -500,8 +510,8 @@ class InteractionNet {
     this.connect(era.ports[0], pair.ports[1]);
     
     // Clean up
-    this.nodes.delete(snd);
-    this.nodes.delete(pair);
+    this.deleteNode(snd);
+    this.deleteNode(pair);
   }
   
   // Fix typo in method name (was reduceNumNum)
@@ -515,8 +525,8 @@ class InteractionNet {
       this.connect(resultNode.ports[0], num1.ports[0].uplink);
     }
     
-    this.nodes.delete(num1);
-    this.nodes.delete(num2);
+    this.deleteNode(num1);
+    this.deleteNode(num2);
   }  
 
   // Reduce lambda-application pair
@@ -531,8 +541,8 @@ class InteractionNet {
     }
 
     // Clean up
-    this.nodes.delete(lam);
-    this.nodes.delete(app);
+    this.deleteNode(lam);
+    this.deleteNode(app);
   }
 
   // Reduce duplicator-application pair
@@ -560,8 +570,8 @@ class InteractionNet {
     }
 
     // Clean up
-    this.nodes.delete(dup);
-    this.nodes.delete(app);
+    this.deleteNode(dup);
+    this.deleteNode(app);
   }
 
   // Reduce duplicator-lambda pair
@@ -589,8 +599,8 @@ class InteractionNet {
     }
 
     // Clean up
-    this.nodes.delete(dup);
-    this.nodes.delete(lam);
+    this.deleteNode(dup);
+    this.deleteNode(lam);
   }
 
   reduceDupDup(dup1, dup2) {
@@ -605,8 +615,8 @@ class InteractionNet {
     this.connect(newDup3.ports[1], dup1.ports[2]);
     this.connect(newDup3.ports[2], dup2.ports[2]);
 
-    this.nodes.delete(dup1);
-    this.nodes.delete(dup2);
+    this.deleteNode(dup1);
+    this.deleteNode(dup2);
   }
 
   // Reduce switch-boolean pair
@@ -625,8 +635,8 @@ class InteractionNet {
     }
 
     // Clean up
-    this.nodes.delete(swi);
-    this.nodes.delete(bool);
+    this.deleteNode(swi);
+    this.deleteNode(bool);
   }
 
   // Reduce switch-duplicator pair
@@ -648,8 +658,8 @@ class InteractionNet {
     this.connect(newSwi2.ports[2], dup.ports[2]);
 
     // Clean up
-    this.nodes.delete(swi);
-    this.nodes.delete(dup);
+    this.deleteNode(swi);
+    this.deleteNode(dup);
   }
 
   // Reduce switch-eraser pair
@@ -663,15 +673,15 @@ class InteractionNet {
     this.connect(newEra2.ports[0], swi.ports[2]);
 
     // Clean up
-    this.nodes.delete(swi);
-    this.nodes.delete(era);
+    this.deleteNode(swi);
+    this.deleteNode(era);
   }
 
   reduceEraLam(era, lam) {
     const newEra = this.createEra();
     this.connect(newEra.ports[0], lam.ports[1]);
-    this.nodes.delete(era);
-    this.nodes.delete(lam);
+    this.deleteNode(era);
+    this.deleteNode(lam);
   }
 
   reduceEraApp(era, app) {
@@ -679,8 +689,8 @@ class InteractionNet {
     const newEra2 = this.createEra();
     this.connect(newEra1.ports[0], app.ports[1]);
     this.connect(newEra2.ports[0], app.ports[2]);
-    this.nodes.delete(era);
-    this.nodes.delete(app);
+    this.deleteNode(era);
+    this.deleteNode(app);
   }
 
   reduceEraDup(era, dup) {
@@ -688,13 +698,13 @@ class InteractionNet {
     const newEra2 = this.createEra();
     this.connect(newEra1.ports[0], dup.ports[1]);
     this.connect(newEra2.ports[0], dup.ports[2]);
-    this.nodes.delete(era);
-    this.nodes.delete(dup);
+    this.deleteNode(era);
+    this.deleteNode(dup);
   }
 
   reduceEraNum(era, num) {
-    this.nodes.delete(era);
-    this.nodes.delete(num);
+    this.deleteNode(era);
+    this.deleteNode(num);
   }
 
   reduceNumDup(num, dup) {
@@ -702,8 +712,8 @@ class InteractionNet {
     const newNum2 = this.createNum(num.value);
     this.connect(newNum1.ports[0], dup.ports[1]);
     this.connect(newNum2.ports[0], dup.ports[2]);
-    this.nodes.delete(num);
-    this.nodes.delete(dup);
+    this.deleteNode(num);
+    this.deleteNode(dup);
   }
 
   reduceNumNum(num1, num2) {
@@ -716,11 +726,21 @@ class InteractionNet {
       this.connect(resultNode.ports[0], num1.ports[0].uplink);
     }
     
-    this.nodes.delete(num1);
-    this.nodes.delete(num2);
+    this.deleteNode(num1);
+    this.deleteNode(num2);
   }
 
   reduceOperation(op, arg) {
+    if (op.type !== NodeType.OPE) {
+      return false;
+    }
+
+    // Store first operand if not already stored
+    if (!op.metadata.firstOperand && arg.type === NodeType.NUM) {
+      op.metadata.firstOperand = arg.value;
+      return true;
+    }
+
     switch(op.operation) {
       case 'add':
       case 'mul':
@@ -739,39 +759,67 @@ class InteractionNet {
   reduceArithmeticOp(op, arg) {
     if (arg.type !== NodeType.NUM) return false;
     
+    // If we don't have the first operand yet, store it
+    if (!op.metadata.firstOperand) {
+      op.metadata.firstOperand = arg.value;
+      return true;
+    }
+
+    // We have both operands, perform the operation
     const operations = {
       'add': (a, b) => a + b,
       'mul': (a, b) => a * b,
       'sub': (a, b) => a - b,
-      'div': (a, b) => a / b
+      'div': (a, b) => Math.floor(a / b)
     };
 
-    const result = this.createNum(operations[op.operation](op.value, arg.value));
+    const result = this.createNum(
+      operations[op.operation](op.metadata.firstOperand, arg.value)
+    );
+
+    // Connect result to waiting computation
     if (op.ports[0].uplink) {
       this.connect(result.ports[0], op.ports[0].uplink);
     }
-    
-    this.nodes.delete(op);
-    this.nodes.delete(arg);
+
+    // Clean up
+    this.deleteNode(op);
+    this.deleteNode(arg);
     return true;
   }
 
   reduceBooleanOp(op, arg) {
     if (arg.type !== NodeType.BOOL) return false;
     
+    // If we don't have the first operand yet and it's not a unary operation
+    if (!op.metadata.firstOperand && op.operation !== 'not') {
+      op.metadata.firstOperand = arg.value;
+      return true;
+    }
+
     const operations = {
       'and': (a, b) => a && b,
       'or': (a, b) => a || b,
       'not': a => !a
     };
 
-    const result = this.createBool(operations[op.operation](op.value, arg.value));
+    let resultValue;
+    if (op.operation === 'not') {
+      resultValue = operations.not(arg.value);
+    } else {
+      resultValue = operations[op.operation](op.metadata.firstOperand, arg.value);
+    }
+
+    const result = this.createBool(resultValue);
+
+    // Connect result to waiting computation
     if (op.ports[0].uplink) {
       this.connect(result.ports[0], op.ports[0].uplink);
     }
-    
-    this.nodes.delete(op);
-    this.nodes.delete(arg);
+
+    // Clean up
+    this.deleteNode(op);
+    this.deleteNode(arg);
     return true;
   }
 

@@ -16,7 +16,8 @@
     "example:demoPair": "node ./examples/demoPair.js 2>&1 | tee example:demoPair.stdout.txt",
     "example:demoSelfApp": "node ./examples/demoSelfApp.js 2>&1 | tee example:demoSelfApp.stdout.txt",
     "example:demoSnd": "node ./examples/demoSnd.js 2>&1 | tee example:demoSnd.stdout.txt",
-    "example:demoString": "node ./examples/demoString.js 2>&1 | tee example:demoString.stdout.txt"
+    "example:demoString": "node ./examples/demoString.js 2>&1 | tee example:demoString.stdout.txt",
+    "example:demoSwitch": "node ./examples/demoSwitch.js 2>&1 | tee example:demoSwitch.stdout.txt"
   },
   "author": "",
   "license": "UNLICENSED",

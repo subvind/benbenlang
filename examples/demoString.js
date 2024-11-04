@@ -14,4 +14,4 @@ function demoString() {
   printNet(net);
 }
 
-demoFst();
+demoString();

@@ -1,0 +1,44 @@
+=== Switch (if condition then branch1 else branch2) ===
+
+
+Current network state:
+Node SWI:
+  Port 0: negative
+    -> linked to: BOOL:0
+    -> uplinked to: none:none
+  Port 1: positive
+    -> linked to: NUM:0
+    -> uplinked to: none:none
+  Port 2: positive
+    -> linked to: NUM:0
+    -> uplinked to: none:none
+Node BOOL:
+  Port 0: negative
+    -> linked to: SWI:0
+    -> uplinked to: none:none
+Node NUM:
+  Port 0: negative
+    -> linked to: SWI:1
+    -> uplinked to: none:none
+Node NUM:
+  Port 0: negative
+    -> linked to: SWI:2
+    -> uplinked to: none:none
+
+Active pairs: 1
+
+Current network state:
+Node NUM:
+  Port 0: negative
+    -> linked to: SWI:1
+    -> uplinked to: none:none
+Node NUM:
+  Port 0: negative
+    -> linked to: SWI:2
+    -> uplinked to: none:none
+Node ERA:
+  Port 0: negative
+    -> linked to: SWI:2
+    -> uplinked to: none:none
+
+Active pairs: 0

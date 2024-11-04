@@ -1,7 +1,7 @@
 const { InteractionNet, NodeType } = require('../src/vm.js');
 const { printNet } = require('../helpers/printNet.js');
 
-function demoFst() {
+function demoSnd() {
   console.log('\n=== Second (5 10) ===');
   const net = new InteractionNet();
   
@@ -20,4 +20,4 @@ function demoFst() {
   printNet(net);
 }
 
-demoFst();
+demoSnd();

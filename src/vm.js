@@ -14,7 +14,8 @@ const NodeType = {
   STR: 'STR',   // String constant
   LIST: 'LIST', // List constructor
   HEAD: 'HEAD', // List head operation
-  TAIL: 'TAIL'  // List tail operation
+  TAIL: 'TAIL', // List tail operation
+  SWI: 'SWI',   // Switch conditional
 };
 
 // Represents a port in the interaction net
@@ -279,6 +280,14 @@ class InteractionNet {
     return node;
   }
 
+  createSwitch() {
+    const node = this.createNode(NodeType.SWI);
+    node.addPort(false); // Principal port for boolean input
+    node.addPort(true);  // True branch port
+    node.addPort(true);  // False branch port
+    return node;
+  }
+
   // Perform a single reduction step
   reduce() {
     if (this.active.size === 0) return false;
@@ -338,6 +347,30 @@ class InteractionNet {
 
       case (node1.type === NodeType.DUP && node2.type === NodeType.DUP):
         this.reduceDupDup(node1, node2);
+        return true;
+
+      case (node1.type === NodeType.SWI && node2.type === NodeType.BOOL) ||
+            (node2.type === NodeType.SWI && node1.type === NodeType.BOOL):
+        this.reduceSwitchBool(
+          node1.type === NodeType.SWI ? node1 : node2,
+          node1.type === NodeType.BOOL ? node1 : node2
+        );
+        return true;
+
+      case (node1.type === NodeType.SWI && node2.type === NodeType.DUP) ||
+            (node2.type === NodeType.SWI && node1.type === NodeType.DUP):
+        this.reduceSwitchDup(
+          node1.type === NodeType.SWI ? node1 : node2,
+          node1.type === NodeType.DUP ? node1 : node2
+        );
+        return true;
+
+      case (node1.type === NodeType.SWI && node2.type === NodeType.ERA) ||
+            (node2.type === NodeType.SWI && node1.type === NodeType.ERA):
+        this.reduceSwitchEra(
+          node1.type === NodeType.SWI ? node1 : node2,
+          node1.type === NodeType.ERA ? node1 : node2
+        );
         return true;
     }
     return false;
@@ -471,7 +504,7 @@ class InteractionNet {
     this.nodes.delete(pair);
   }
   
-  // Fix typo in method name (was reduceNumNUm)
+  // Fix typo in method name (was reduceNumNum)
   reduceNumNum(num1, num2) {
     // Handle built-in operations between constants
     const result = this.evaluateConstants(num1.value, num2.value);
@@ -576,6 +609,64 @@ class InteractionNet {
     this.nodes.delete(dup2);
   }
 
+  // Reduce switch-boolean pair
+  reduceSwitchBool(swi, bool) {
+    // Connect to true or false branch based on boolean value
+    const targetPort = bool.value ? swi.ports[1] : swi.ports[2];
+    const unusedPort = bool.value ? swi.ports[2] : swi.ports[1];
+    
+    // Create eraser for unused branch
+    const era = this.createEra();
+    this.connect(era.ports[0], unusedPort);
+
+    // Connect target branch to any waiting computation
+    if (swi.ports[0].uplink) {
+      this.connect(targetPort, swi.ports[0].uplink);
+    }
+
+    // Clean up
+    this.nodes.delete(swi);
+    this.nodes.delete(bool);
+  }
+
+  // Reduce switch-duplicator pair
+  reduceSwitchDup(swi, dup) {
+    // Create new switch nodes for each copy
+    const newSwi1 = this.createSwitch();
+    const newSwi2 = this.createSwitch();
+    const newDup = this.createDup();
+
+    // Connect new duplicator to both switch condition ports
+    this.connect(newDup.ports[1], newSwi1.ports[0]);
+    this.connect(newDup.ports[2], newSwi2.ports[0]);
+    this.connect(newDup.ports[0], swi.ports[0]);
+
+    // Connect the branches
+    this.connect(newSwi1.ports[1], dup.ports[1]);
+    this.connect(newSwi2.ports[1], dup.ports[2]);
+    this.connect(newSwi1.ports[2], dup.ports[1]);
+    this.connect(newSwi2.ports[2], dup.ports[2]);
+
+    // Clean up
+    this.nodes.delete(swi);
+    this.nodes.delete(dup);
+  }
+
+  // Reduce switch-eraser pair
+  reduceSwitchEra(swi, era) {
+    // Create erasers for both branches
+    const newEra1 = this.createEra();
+    const newEra2 = this.createEra();
+    
+    // Connect erasers to switch branches
+    this.connect(newEra1.ports[0], swi.ports[1]);
+    this.connect(newEra2.ports[0], swi.ports[2]);
+
+    // Clean up
+    this.nodes.delete(swi);
+    this.nodes.delete(era);
+  }
+
   reduceEraLam(era, lam) {
     const newEra = this.createEra();
     this.connect(newEra.ports[0], lam.ports[1]);
@@ -615,7 +706,7 @@ class InteractionNet {
     this.nodes.delete(dup);
   }
 
-  reduceNumNUm(num1, num2) {
+  reduceNumNum(num1, num2) {
     // Handle built-in operations between constants
     const result = this.evaluateConstants(num1.value, num2.value);
     const resultNode = this.createNum(result);

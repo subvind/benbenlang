@@ -1,5 +1,5 @@
-const { InteractionNet, NodeType } = require('../src/vm.js');
-const { printNet } = require('../helpers/printNet.js');
+const { InteractionNet, NodeType } = require('../../src/vm.js');
+const { printNet } = require('../../helpers/printNet.js');
 
 function demoPair() {
   console.log('\n=== Pair (true false) ===');

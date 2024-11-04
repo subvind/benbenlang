@@ -1,23 +1,23 @@
 
-=== Example 3: Constant function (λx.5) y ===
+=== Constant function (λx.5) y ===
 
 Current network state:
 Node LAM:
   Port 0: positive
-    -> linked to: APP:none
-    -> uplinked to: NUM:none
+    -> linked to: APP:0
+    -> uplinked to: NUM:0
   Port 1: negative
     -> linked to: none:none
     -> uplinked to: none:none
 Node APP:
   Port 0: negative
-    -> linked to: LAM:none
+    -> linked to: LAM:0
     -> uplinked to: none:none
   Port 1: positive
     -> linked to: none:none
     -> uplinked to: none:none
   Port 2: positive
-    -> linked to: VAR:none
+    -> linked to: VAR:0
     -> uplinked to: none:none
 Node NUM:
   Port 0: negative

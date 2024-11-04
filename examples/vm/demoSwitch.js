@@ -1,5 +1,5 @@
-const { InteractionNet, NodeType } = require('../src/vm.js');
-const { printNet } = require('../helpers/printNet.js');
+const { InteractionNet, NodeType } = require('../../src/vm.js');
+const { printNet } = require('../../helpers/printNet.js');
 
 function demoSwitch() {
   console.log('=== Switch (if condition then branch1 else branch2) ===\n');

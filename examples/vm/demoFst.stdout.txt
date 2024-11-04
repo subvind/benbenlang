@@ -1,16 +1,16 @@
 
-=== Example 4: First (5 10) ===
+=== First (5 10) ===
 
 Current network state:
 Node PAIR:
   Port 0: negative
-    -> linked to: FST:none
+    -> linked to: FST:0
     -> uplinked to: none:none
   Port 1: positive
-    -> linked to: NUM:none
+    -> linked to: NUM:0
     -> uplinked to: none:none
   Port 2: positive
-    -> linked to: NUM:none
+    -> linked to: NUM:0
     -> uplinked to: none:none
 Node NUM:
   Port 0: negative
@@ -22,7 +22,7 @@ Node NUM:
     -> uplinked to: none:none
 Node FST:
   Port 0: negative
-    -> linked to: PAIR:none
+    -> linked to: PAIR:0
     -> uplinked to: none:none
   Port 1: positive
     -> linked to: none:none

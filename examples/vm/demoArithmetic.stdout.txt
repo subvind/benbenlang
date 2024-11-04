@@ -1,5 +1,5 @@
 
-=== Example 4: Arithmetic (5 + 3) ===
+=== Arithmetic (5 + 3) ===
 
 Current network state:
 Node NUM:

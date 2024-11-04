@@ -1,16 +1,8 @@
 
-=== Example 4: Boolean (true and false) ===
+=== Pair (true false) ===
 
 Current network state:
-Node BOOL:
-  Port 0: negative
-    -> linked to: OPE(and):1
-    -> uplinked to: none:none
-Node BOOL:
-  Port 0: negative
-    -> linked to: OPE(and):2
-    -> uplinked to: none:none
-Node OPE(and):
+Node PAIR:
   Port 0: negative
     -> linked to: none:none
     -> uplinked to: none:none
@@ -19,20 +11,20 @@ Node OPE(and):
     -> uplinked to: none:none
   Port 2: positive
     -> linked to: BOOL:0
+    -> uplinked to: none:none
+Node BOOL:
+  Port 0: negative
+    -> linked to: PAIR:1
+    -> uplinked to: none:none
+Node BOOL:
+  Port 0: negative
+    -> linked to: PAIR:2
     -> uplinked to: none:none
 
 Active pairs: 0
 
 Current network state:
-Node BOOL:
-  Port 0: negative
-    -> linked to: OPE(and):1
-    -> uplinked to: none:none
-Node BOOL:
-  Port 0: negative
-    -> linked to: OPE(and):2
-    -> uplinked to: none:none
-Node OPE(and):
+Node PAIR:
   Port 0: negative
     -> linked to: none:none
     -> uplinked to: none:none
@@ -41,6 +33,14 @@ Node OPE(and):
     -> uplinked to: none:none
   Port 2: positive
     -> linked to: BOOL:0
+    -> uplinked to: none:none
+Node BOOL:
+  Port 0: negative
+    -> linked to: PAIR:1
+    -> uplinked to: none:none
+Node BOOL:
+  Port 0: negative
+    -> linked to: PAIR:2
     -> uplinked to: none:none
 
 Active pairs: 0

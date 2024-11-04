@@ -1,23 +1,23 @@
 
-=== Example 5: Garbage collection ((λx.y) z) ===
+=== Garbage collection with erasure ((λx.y) z) ===
 
 Current network state:
 Node LAM:
   Port 0: positive
-    -> linked to: APP:none
-    -> uplinked to: VAR:none
+    -> linked to: APP:0
+    -> uplinked to: VAR:0
   Port 1: negative
-    -> linked to: ERA:none
+    -> linked to: ERA:0
     -> uplinked to: none:none
 Node APP:
   Port 0: negative
-    -> linked to: LAM:none
+    -> linked to: LAM:0
     -> uplinked to: none:none
   Port 1: positive
     -> linked to: none:none
     -> uplinked to: none:none
   Port 2: positive
-    -> linked to: VAR:none
+    -> linked to: VAR:0
     -> uplinked to: none:none
 Node VAR:
   Port 0: negative

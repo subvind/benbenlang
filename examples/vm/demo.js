@@ -1,6 +1,6 @@
 // ./examples/demo.js
-const { InteractionNet, NodeType } = require('../src/vm');
-const { printNet } = require('../helpers/printNet.js');
+const { InteractionNet, NodeType } = require('../../src/vm.js');
+const { printNet } = require('../../helpers/printNet.js');
 
 // Create a new interaction net
 const net = new InteractionNet();

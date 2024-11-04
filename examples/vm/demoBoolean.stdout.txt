@@ -1,0 +1,46 @@
+
+=== Boolean (true and false) ===
+
+Current network state:
+Node BOOL:
+  Port 0: negative
+    -> linked to: OPE(and):1
+    -> uplinked to: none:none
+Node BOOL:
+  Port 0: negative
+    -> linked to: OPE(and):2
+    -> uplinked to: none:none
+Node OPE(and):
+  Port 0: negative
+    -> linked to: none:none
+    -> uplinked to: none:none
+  Port 1: positive
+    -> linked to: BOOL:0
+    -> uplinked to: none:none
+  Port 2: positive
+    -> linked to: BOOL:0
+    -> uplinked to: none:none
+
+Active pairs: 0
+
+Current network state:
+Node BOOL:
+  Port 0: negative
+    -> linked to: OPE(and):1
+    -> uplinked to: none:none
+Node BOOL:
+  Port 0: negative
+    -> linked to: OPE(and):2
+    -> uplinked to: none:none
+Node OPE(and):
+  Port 0: negative
+    -> linked to: none:none
+    -> uplinked to: none:none
+  Port 1: positive
+    -> linked to: BOOL:0
+    -> uplinked to: none:none
+  Port 2: positive
+    -> linked to: BOOL:0
+    -> uplinked to: none:none
+
+Active pairs: 0

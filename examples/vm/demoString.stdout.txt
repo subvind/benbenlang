@@ -1,0 +1,18 @@
+=== String "Hello" ===
+
+
+Current network state:
+Node STR:
+  Port 0: negative
+    -> linked to: none:none
+    -> uplinked to: none:none
+
+Active pairs: 0
+
+Current network state:
+Node STR:
+  Port 0: negative
+    -> linked to: none:none
+    -> uplinked to: none:none
+
+Active pairs: 0

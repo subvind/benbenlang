@@ -10,9 +10,13 @@
     "example:demoErasure": "node ./examples/demoErasure.js 2>&1 | tee example:demoErasure.stdout.txt",
     "example:demoFst": "node ./examples/demoFst.js 2>&1 | tee example:demoFst.stdout.txt",
     "example:demoIdentity": "node ./examples/demoIdentity.js 2>&1 | tee example:demoIdentity.stdout.txt",
+    "example:demoListHead": "node ./examples/demoListHead.js 2>&1 | tee example:demoListHead.stdout.txt",
+    "example:demoListOperations": "node ./examples/demoListOperations.js 2>&1 | tee example:demoListOperations.stdout.txt",
+    "example:demoListTail": "node ./examples/demoListTail.js 2>&1 | tee example:demoListTail.stdout.txt",
     "example:demoPair": "node ./examples/demoPair.js 2>&1 | tee example:demoPair.stdout.txt",
     "example:demoSelfApp": "node ./examples/demoSelfApp.js 2>&1 | tee example:demoSelfApp.stdout.txt",
-    "example:demoSnd": "node ./examples/demoSnd.js 2>&1 | tee example:demoSnd.stdout.txt"
+    "example:demoSnd": "node ./examples/demoSnd.js 2>&1 | tee example:demoSnd.stdout.txt",
+    "example:demoString": "node ./examples/demoString.js 2>&1 | tee example:demoString.stdout.txt"
   },
   "author": "",
   "license": "UNLICENSED",

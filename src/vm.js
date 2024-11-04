@@ -10,26 +10,51 @@ const NodeType = {
   PAIR: 'PAIR', // Pair constructor
   FST: 'FST',   // First projection
   SND: 'SND',   // Second projection
-  OPE: 'OPE'    // Built-in operator
+  OPE: 'OPE',   // Built-in operator
+  STR: 'STR',   // String constant
+  LIST: 'LIST', // List constructor
+  HEAD: 'HEAD', // List head operation
+  TAIL: 'TAIL'  // List tail operation
 };
 
 // Represents a port in the interaction net
 class Port {
   constructor(node, index, isPositive) {
-    this.node = node;       // Reference to the node this port belongs to
-    this.index = index;     // Port index on the node
+    if (!node) throw new Error('Port must belong to a node');
+    if (typeof index !== 'number') throw new Error('Port index must be a number');
+    if (typeof isPositive !== 'boolean') throw new Error('isPositive must be a boolean');
+
+    this.node = node;              // Reference to the node this port belongs to
+    this.index = index;            // Port index on the node
     this.isPositive = isPositive;  // Whether this is a positive (green) or negative (red) port
-    this.link = null;       // Connection to another port
-    this.uplink = null;     // Upward connection (gray arrows)
+    this.link = null;              // Connection to another port
+    this.uplink = null;            // Upward connection (gray arrows)
+    this._id = Port.nextId++;      // Unique ID for debugging
+  }
+
+  static nextId = 0;
+
+  // Helper method to check if port is connected
+  isConnected() {
+    return this.link !== null;
+  }
+
+  // Debug representation
+  toString() {
+    return `Port(id=${this._id}, node=${this.node.type}, index=${this.index}, positive=${this.isPositive})`;
   }
 }
 
 // Represents a node in the interaction net
 class Node {
   constructor(type) {
+    if (!NodeType[type]) throw new Error(`Invalid node type: ${type}`);
+
     this.type = type;
     this.ports = [];        // Array of ports
     this.isActive = true;   // Whether this node can participate in reductions
+    this._id = Node.nextId++; // Unique ID for debugging
+    this.metadata = {}; // Extensible metadata storage
   }
 
   // Create a new port on this node
@@ -38,19 +63,74 @@ class Node {
     this.ports.push(port);
     return port;
   }
+
+  // Helper to check if node can reduce with another node
+  canReduceWith(other) {
+    return this.isActive 
+      && other.isActive 
+      && this.ports[0].isConnected() 
+      && other.ports[0].isConnected();
+  }
+
+  // Debug representation
+  toString() {
+    return `Node(id=${this._id}, type=${this.type}, ports=${this.ports.length})`;
+  }
 }
 
 class InteractionNet {
   constructor() {
     this.nodes = new Set();
     this.active = new Set(); // Set of active pairs
+    this.statistics = {  // Add statistics tracking
+      reductions: 0,
+      createdNodes: 0,
+      deletedNodes: 0
+    };
+    this.debugMode = false;  // Debug flag
+  }
+
+  // Enable/disable debug mode
+  setDebugMode(enabled) {
+    this.debugMode = enabled;
+  }
+
+  // Log debug information
+  debug(...args) {
+    if (this.debugMode) {
+      console.log('[DEBUG]', ...args);
+    }
   }
 
   // Create a new node of given type
   createNode(type) {
     const node = new Node(type);
     this.nodes.add(node);
+    this.statistics.createdNodes++;
+    this.debug(`Created node: ${node}`);
     return node;
+  }
+
+  // Delete a node method
+  deleteNode(node) {
+    if (!this.nodes.has(node)) {
+      throw new Error('Cannot delete non-existent node');
+    }
+    
+    // Clean up connections
+    for (const port of node.ports) {
+      if (port.link) {
+        port.link.link = null;
+        port.link = null;
+      }
+      if (port.uplink) {
+        port.uplink = null;
+      }
+    }
+
+    this.nodes.delete(node);
+    this.statistics.deletedNodes++;
+    this.debug(`Deleted node: ${node}`);
   }
 
   // Connect two ports together
@@ -58,12 +138,23 @@ class InteractionNet {
     if (!port1 || !port2) {
       throw new Error('Cannot connect undefined ports');
     }
+    
+    // if (port1.link || port2.link) {
+    //   throw new Error('Cannot connect already connected ports');
+    // }
+
+    // // Validate port polarity
+    // if (port1.isPositive === port2.isPositive) {
+    //   throw new Error('Cannot connect ports of same polarity');
+    // }
+
     port1.link = port2;
     port2.link = port1;
     
     // If connecting principal ports, add to active pairs
     if (port1.index === 0 && port2.index === 0) {
       this.active.add([port1.node, port2.node]);
+      this.debug(`Added active pair: ${port1.node} - ${port2.node}`);
     }
   }
 
@@ -159,24 +250,63 @@ class InteractionNet {
     return node;
   }
 
+  createString(value) {
+    const node = this.createNode(NodeType.STR);
+    node.addPort(false);
+    node.value = value;
+    return node;
+  }
+
+  createList() {
+    const node = this.createNode(NodeType.LIST);
+    node.addPort(false); // Principal port
+    node.addPort(true);  // Head
+    node.addPort(true);  // Tail
+    return node;
+  }
+
+  createHead() {
+    const node = this.createNode(NodeType.HEAD);
+    node.addPort(false); // Principal port
+    node.addPort(true);  // Result port
+    return node;
+  }
+
+  createTail() {
+    const node = this.createNode(NodeType.TAIL);
+    node.addPort(false); // Principal port
+    node.addPort(true);  // Result port
+    return node;
+  }
+
   // Perform a single reduction step
   reduce() {
     if (this.active.size === 0) return false;
     
-    const activePair = Array.from(this.active)[0];
-    this.active.delete(activePair);
-    const [node1, node2] = activePair;
+    try {
+      const activePair = Array.from(this.active)[0];
+      this.active.delete(activePair);
+      const [node1, node2] = activePair;
 
-    // Basic reductions
-    if (this.tryBasicReduction(node1, node2)) return true;
-    
-    // Erasure reductions
-    if (this.tryErasureReduction(node1, node2)) return true;
-    
-    // Constant reductions
-    if (this.tryConstantReduction(node1, node2)) return true;
+      if (!node1.canReduceWith(node2)) {
+        this.debug('Invalid active pair, skipping reduction');
+        return true;
+      }
 
-    return true;
+      // Track reduction statistics
+      this.statistics.reductions++;
+      
+      // Extended reduction rules
+      if (this.tryBasicReduction(node1, node2)) return true;
+      if (this.tryErasureReduction(node1, node2)) return true;
+      if (this.tryConstantReduction(node1, node2)) return true;
+      if (this.tryListReduction(node1, node2)) return true;
+      
+      throw new Error(`No reduction rule for pair: ${node1.type} - ${node2.type}`);
+    } catch (error) {
+      this.debug('Reduction error:', error);
+      throw error;
+    }
   }
 
   // Reduce try basic
@@ -288,6 +418,29 @@ class InteractionNet {
       );
     }
   
+    return false;
+  }
+
+  // Reduce try list-related reductions
+  tryListReduction(node1, node2) {
+    if ((node1.type === NodeType.HEAD && node2.type === NodeType.LIST) ||
+        (node2.type === NodeType.HEAD && node1.type === NodeType.LIST)) {
+      this.reduceHeadList(
+        node1.type === NodeType.HEAD ? node1 : node2,
+        node1.type === NodeType.LIST ? node1 : node2
+      );
+      return true;
+    }
+    
+    if ((node1.type === NodeType.TAIL && node2.type === NodeType.LIST) ||
+        (node2.type === NodeType.TAIL && node1.type === NodeType.LIST)) {
+      this.reduceTailList(
+        node1.type === NodeType.TAIL ? node1 : node2,
+        node1.type === NodeType.LIST ? node1 : node2
+      );
+      return true;
+    }
+    
     return false;
   }
   
@@ -531,6 +684,28 @@ class InteractionNet {
     return true;
   }
 
+  reduceHeadList(head, list) {
+    this.connect(head.ports[1], list.ports[1]); // Connect to list head
+    
+    // Create eraser for tail
+    const era = this.createEra();
+    this.connect(era.ports[0], list.ports[2]);
+    
+    this.deleteNode(head);
+    this.deleteNode(list);
+  }
+
+  reduceTailList(tail, list) {
+    this.connect(tail.ports[1], list.ports[2]); // Connect to list tail
+    
+    // Create eraser for head
+    const era = this.createEra();
+    this.connect(era.ports[0], list.ports[1]);
+    
+    this.deleteNode(tail);
+    this.deleteNode(list);
+  }
+
   evaluateConstants(val1, val2) {
     // Simple arithmetic operations as an example
     if (typeof val1 === 'number' && typeof val2 === 'number') {
@@ -543,13 +718,52 @@ class InteractionNet {
   }
 
   // Run the machine until no more reductions are possible
-  normalForm() {
+  normalForm(maxSteps = 1000) {
     let steps = 0;
+    const startTime = Date.now();
+    
     while (this.reduce()) {
       steps++;
-      if (steps > 1000) throw new Error('Reduction exceeded 1000 steps - possible infinite loop');
+      if (steps > maxSteps) {
+        throw new Error(`Reduction exceeded ${maxSteps} steps - possible infinite loop`);
+      }
+      
+      // Add timeout check
+      if (Date.now() - startTime > 5000) { // 5 second timeout
+        throw new Error('Reduction timeout - computation took too long');
+      }
     }
-    return steps;
+    
+    return {
+      steps,
+      duration: Date.now() - startTime,
+      statistics: { ...this.statistics }
+    };
+  }
+
+  // Method to get current state
+  getState() {
+    return {
+      nodeCount: this.nodes.size,
+      activePairs: this.active.size,
+      statistics: { ...this.statistics }
+    };
+  }
+
+  // Method to validate network integrity
+  validateNetwork() {
+    for (const node of this.nodes) {
+      // Check port connections
+      for (const port of node.ports) {
+        if (port.link && !this.nodes.has(port.link.node)) {
+          throw new Error(`Invalid port connection: ${port} linked to deleted node`);
+        }
+        if (port.link && port.link.link !== port) {
+          throw new Error(`Inconsistent port connection: ${port}`);
+        }
+      }
+    }
+    return true;
   }
 }
 
@@ -592,5 +806,7 @@ function createYCombinator(net) {
 module.exports = {
   InteractionNet,
   NodeType,
-  createYCombinator
+  createYCombinator,
+  Port,
+  Node
 };

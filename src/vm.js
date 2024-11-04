@@ -78,7 +78,7 @@ class Node {
 
   // Debug representation
   toString() {
-    return `Node(id=${this._id}, type=${this.type}, ports=${this.ports.length}${this.value !== null ? `, value=${this.value}` : ''})`;
+    return `Node(id=${this._id}, type=${this.type}, ports=${this.ports.length}, value=${this.value})`;
   }
 }
 
@@ -111,7 +111,6 @@ class InteractionNet {
     const node = new Node(type);
     this.nodes.add(node);
     this.statistics.createdNodes++;
-    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -175,6 +174,7 @@ class InteractionNet {
     const node = this.createNode(NodeType.LAM);
     node.addPort(true);   // Principal port (positive)
     node.addPort(false);  // Binding port (negative)
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -184,6 +184,7 @@ class InteractionNet {
     node.addPort(false);  // Principal port (negative)
     node.addPort(true);   // Left port (positive)
     node.addPort(true);   // Right port (positive)
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -193,6 +194,7 @@ class InteractionNet {
     node.addPort(false);  // Principal port (negative)
     node.addPort(true);   // Left copy port (positive)
     node.addPort(true);   // Right copy port (positive)
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -200,6 +202,7 @@ class InteractionNet {
   createEra() {
     const node = this.createNode(NodeType.ERA);
     node.addPort(false);  // Principal port (negative)
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -208,6 +211,7 @@ class InteractionNet {
     const node = this.createNode(NodeType.NUM);
     node.addPort(false);  // Principal port (negative)
     node.value = value;   // Store constant value
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -216,6 +220,7 @@ class InteractionNet {
     const node = this.createNode(NodeType.BOOL);
     node.addPort(false);  // Principal port
     node.value = value;   // Store boolean value
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -225,6 +230,7 @@ class InteractionNet {
     node.addPort(false);  // Principal port
     node.addPort(true);   // First element
     node.addPort(true);   // Second element
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -233,6 +239,7 @@ class InteractionNet {
     const node = this.createNode(NodeType.FST);
     node.addPort(false);  // Principal port
     node.addPort(true);   // Result port
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -241,6 +248,7 @@ class InteractionNet {
     const node = this.createNode(NodeType.SND);
     node.addPort(false);  // Principal port
     node.addPort(true);   // Result port
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -248,16 +256,20 @@ class InteractionNet {
   createOp(operation) {
     const node = this.createNode(NodeType.OPE);
     node.addPort(false);  // Principal port
-
-    // For unary operations (like 'not'), we only need one operand port
-    if (operation === 'not') {
-      node.addPort(true);  // Single operand
-    } else {
-      node.addPort(true);  // Left operand
-      node.addPort(true);  // Right operand
+    node.addPort(true);   // First operand
+    
+    // Only add second operand port for binary operations
+    if (operation !== 'not') {
+      node.addPort(true); // Second operand
     }
     
-    node.operation = operation;  // Store operation type
+    // Initialize metadata
+    node.metadata = {
+      operator: operation,
+      firstOperand: null
+    };
+
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -265,6 +277,7 @@ class InteractionNet {
     const node = this.createNode(NodeType.STR);
     node.addPort(false);
     node.value = value;
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -273,6 +286,7 @@ class InteractionNet {
     node.addPort(false); // Principal port
     node.addPort(true);  // Head
     node.addPort(true);  // Tail
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -280,6 +294,7 @@ class InteractionNet {
     const node = this.createNode(NodeType.HEAD);
     node.addPort(false); // Principal port
     node.addPort(true);  // Result port
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -287,6 +302,7 @@ class InteractionNet {
     const node = this.createNode(NodeType.TAIL);
     node.addPort(false); // Principal port
     node.addPort(true);  // Result port
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
@@ -295,12 +311,29 @@ class InteractionNet {
     node.addPort(false); // Principal port for boolean input
     node.addPort(true);  // True branch port
     node.addPort(true);  // False branch port
+    this.debug(`Created node: ${node}`);
     return node;
   }
 
   // Perform a single reduction step
   reduce() {
-    if (this.active.size === 0) return false;
+    if (this.active.size === 0) {
+      // Check for incomplete operations
+      for (const node of this.nodes) {
+        if (node.type === NodeType.OPE && 
+            (node.metadata.operator === 'not' || node.metadata.firstOperand !== null)) {
+          for (const port of node.ports) {
+            if (port.link && 
+                (port.link.node.type === NodeType.NUM || 
+                 port.link.node.type === NodeType.BOOL)) {
+              this.debug('Found incomplete operation to reduce');
+              return this.reduceOperation(node, port.link.node);
+            }
+          }
+        }
+      }
+      return false;
+    }
     
     try {
       const activePair = Array.from(this.active)[0];
@@ -382,6 +415,21 @@ class InteractionNet {
           node1.type === NodeType.ERA ? node1 : node2
         );
         return true;
+
+      case (node1.type === NodeType.OPE && node2.type === NodeType.DUP) ||
+            (node2.type === NodeType.OPE && node1.type === NodeType.DUP):
+        this.reduceOpDup(
+          node1.type === NodeType.OPE ? node1 : node2,
+          node1.type === NodeType.DUP ? node1 : node2
+        );
+        return true;
+
+      case (node1.type === NodeType.OPE && node2.type === NodeType.NUM) ||
+            (node2.type === NodeType.OPE && node1.type === NodeType.NUM):
+        return this.reduceOperationNum(
+            node1.type === NodeType.OPE ? node1 : node2,
+            node1.type === NodeType.NUM ? node1 : node2
+        );
     }
     return false;
   }
@@ -677,6 +725,117 @@ class InteractionNet {
     this.deleteNode(era);
   }
 
+  // Reduce OPE-DUP interaction
+  reduceOpDup(op, dup) {
+    // Create two new operator nodes
+    const op1 = this.createOp(op.metadata.operator);
+    const op2 = this.createOp(op.metadata.operator);
+    
+    // Copy operator metadata
+    op1.metadata = { ...op.metadata };
+    op2.metadata = { ...op.metadata };
+    
+    // Create new duplicator for result
+    const resultDup = this.createDup();
+    
+    // Handle first operation's connections
+    if (op.ports[1].link && op.ports[1].link.node.type === NodeType.NUM) {
+      const num1 = op.ports[1].link.node;
+      this.connect(op1.ports[1], num1.ports[0]);
+    }
+    
+    if (op.ports[2].link && op.ports[2].link.node.type === NodeType.NUM) {
+      const num2 = op.ports[2].link.node;
+      this.connect(op1.ports[2], num2.ports[0]);
+    }
+    
+    // Create copies of numbers for second operation
+    if (op.ports[1].link && op.ports[1].link.node.type === NodeType.NUM) {
+      const newNum1 = this.createNum(op.ports[1].link.node.value);
+      this.connect(op2.ports[1], newNum1.ports[0]);
+    }
+    
+    if (op.ports[2].link && op.ports[2].link.node.type === NodeType.NUM) {
+      const newNum2 = this.createNum(op.ports[2].link.node.value);
+      this.connect(op2.ports[2], newNum2.ports[0]);
+    }
+    
+    // Connect operations to result duplicator
+    this.connect(op1.ports[0], resultDup.ports[1]);
+    this.connect(op2.ports[0], resultDup.ports[2]);
+    
+    // Connect result duplicator to original output
+    if (op.ports[0].link) {
+      this.connect(resultDup.ports[0], op.ports[0].link);
+    }
+    
+    // Explicitly add active pairs for evaluation
+    if (op1.ports[1].link && op1.ports[2].link) {
+      this.active.add([op1, op1.ports[1].link.node]);
+    }
+    
+    if (op2.ports[1].link && op2.ports[2].link) {
+      this.active.add([op2, op2.ports[1].link.node]);
+    }
+    
+    // Clean up original nodes
+    this.deleteNode(op);
+    this.deleteNode(dup);
+    
+    return true;
+  }
+
+  // Reduce OPE-NUM interaction
+  reduceOperationNum(op, num) {
+    // If this is the first number, store it and wait for second
+    if (op.metadata.firstOperand === null) {
+      op.metadata.firstOperand = num.value;
+      this.debug(`Stored first operand: ${num.value}`);
+
+      // If we have the second number already connected, create active pair
+      if (op.ports[2].link && op.ports[2].link.node.type === NodeType.NUM) {
+        this.active.add([op, op.ports[2].link.node]);
+      }
+
+      // Clean up the first number node
+      this.deleteNode(num);
+      return true;
+    }
+
+    // We have both numbers, perform the operation
+    const operations = {
+      'add': (a, b) => a + b,
+      'mul': (a, b) => a * b,
+      'sub': (a, b) => a - b,
+      'div': (a, b) => Math.floor(a / b)
+    };
+
+    const operator = op.metadata.operator;
+    const resultValue = operations[operator](op.metadata.firstOperand, num.value);
+    this.debug(`Computed ${op.metadata.firstOperand} ${operator} ${num.value} = ${resultValue}`);
+
+    // Create result node
+    const result = this.createNum(resultValue);
+    result.isActive = true; // Ensure the result node can participate in reductions
+
+    // If the operation node has a connection on its principal port
+    if (op.ports[0].link) {
+      const targetPort = op.ports[0].link;
+      this.connect(result.ports[0], targetPort);
+      
+      // If connected to a DUP node, create active pair
+      if (targetPort.node.type === NodeType.DUP) {
+        this.active.add([result, targetPort.node]);
+      }
+    }
+
+    // Clean up
+    this.deleteNode(op);
+    this.deleteNode(num);
+
+    return true;
+  }
+
   reduceEraLam(era, lam) {
     const newEra = this.createEra();
     this.connect(newEra.ports[0], lam.ports[1]);
@@ -731,17 +890,7 @@ class InteractionNet {
   }
 
   reduceOperation(op, arg) {
-    if (op.type !== NodeType.OPE) {
-      return false;
-    }
-
-    // Store first operand if not already stored
-    if (!op.metadata.firstOperand && arg.type === NodeType.NUM) {
-      op.metadata.firstOperand = arg.value;
-      return true;
-    }
-
-    switch(op.operation) {
+    switch(op.metadata.operator) {
       case 'add':
       case 'mul':
       case 'sub':
@@ -752,71 +901,105 @@ class InteractionNet {
       case 'not':
         return this.reduceBooleanOp(op, arg);
       default:
-        throw new Error(`Unknown operation: ${op.operation}`);
+        throw new Error(`Unknown operation: ${op.metadata.operator}`);
     }
   }
 
   reduceArithmeticOp(op, arg) {
-    if (arg.type !== NodeType.NUM) return false;
+    if (arg.type !== NodeType.NUM) {
+      throw new Error(`Expected number for arithmetic operation, got ${arg.type}`);
+    }
     
-    // If we don't have the first operand yet, store it
-    if (!op.metadata.firstOperand) {
+    // If first operand not stored yet
+    if (op.metadata.firstOperand === null) {
       op.metadata.firstOperand = arg.value;
+      
+      // Important: Add active pair for second number if available
+      if (op.ports[2].link && op.ports[2].link.node.type === NodeType.NUM) {
+        this.active.add([op, op.ports[2].link.node]);
+      }
+      
       return true;
     }
-
-    // We have both operands, perform the operation
+    
+    // Perform operation
     const operations = {
       'add': (a, b) => a + b,
       'mul': (a, b) => a * b,
       'sub': (a, b) => a - b,
       'div': (a, b) => Math.floor(a / b)
     };
-
-    const result = this.createNum(
-      operations[op.operation](op.metadata.firstOperand, arg.value)
-    );
-
-    // Connect result to waiting computation
-    if (op.ports[0].uplink) {
-      this.connect(result.ports[0], op.ports[0].uplink);
+    
+    const operator = op.metadata.operator;
+    const resultValue = operations[operator](op.metadata.firstOperand, arg.value);
+    
+    // Create and connect result node
+    const result = this.createNum(resultValue);
+    
+    if (op.ports[0].link) {
+      this.connect(result.ports[0], op.ports[0].link);
+      
+      // If result connected to active node, add new active pair
+      const connectedNode = op.ports[0].link.node;
+      if (connectedNode.isActive) {
+        this.active.add([result, connectedNode]);
+      }
     }
-
+    
     // Clean up
     this.deleteNode(op);
     this.deleteNode(arg);
+    
     return true;
-  }
+  }  
 
   reduceBooleanOp(op, arg) {
-    if (arg.type !== NodeType.BOOL) return false;
+    if (arg.type !== NodeType.BOOL) {
+      throw new Error(`Expected boolean for boolean operation, got ${arg.type}`);
+    }
     
-    // If we don't have the first operand yet and it's not a unary operation
-    if (!op.metadata.firstOperand && op.operation !== 'not') {
-      op.metadata.firstOperand = arg.value;
+    // Handle unary 'not' operation immediately
+    if (op.metadata.operator === 'not') {
+      const resultValue = !arg.value;
+      const result = this.createBool(resultValue);
+      
+      if (op.ports[0].link) {
+        this.connect(result.ports[0], op.ports[0].link);
+      }
+      
+      this.deleteNode(op);
+      this.deleteNode(arg);
       return true;
     }
-
+    
+    // For binary operations, store first operand if needed
+    if (op.metadata.firstOperand === null) {
+      op.metadata.firstOperand = arg.value;
+      this.debug(`Stored first boolean operand: ${arg.value}`);
+      return true;
+    }
+    
+    // We have both operands, perform the operation
     const operations = {
       'and': (a, b) => a && b,
-      'or': (a, b) => a || b,
-      'not': a => !a
+      'or': (a, b) => a || b
     };
-
-    let resultValue;
-    if (op.operation === 'not') {
-      resultValue = operations.not(arg.value);
-    } else {
-      resultValue = operations[op.operation](op.metadata.firstOperand, arg.value);
+    
+    const operator = op.metadata.operator;
+    if (!operations[operator]) {
+      throw new Error(`Unknown boolean operator: ${operator}`);
     }
-
+    
+    const resultValue = operations[operator](op.metadata.firstOperand, arg.value);
+    this.debug(`Computed ${op.metadata.firstOperand} ${operator} ${arg.value} = ${resultValue}`);
+    
     const result = this.createBool(resultValue);
-
+    
     // Connect result to waiting computation
-    if (op.ports[0].uplink) {
-      this.connect(result.ports[0], op.ports[0].uplink);
+    if (op.ports[0].link) {
+      this.connect(result.ports[0], op.ports[0].link);
     }
-
+    
     // Clean up
     this.deleteNode(op);
     this.deleteNode(arg);

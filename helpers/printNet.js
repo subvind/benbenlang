@@ -6,24 +6,28 @@ function nodeToString(node) {
   
   switch (node.type) {
     case NodeType.OPE:
-      return `${node.type}(${node.operation})`;  // Add operation type to display
+      return `${node.type}(${node.metadata.operator})`;  // Add operation type to display
+    case NodeType.BOOL:
+    case NodeType.NUM:
+    case NodeType.STR:
+      return `${node.type}(${node.value})`;
     default:
       return node.type;
   }
 }
 
 function printNet(net) {
-  console.log('\nCurrent network state:');
+  console.log('Current network state:');
   for (const node of net.nodes) {
-    console.log(`Node ${nodeToString(node)}:`);
+    console.log(`Node(id=${node._id} type=${nodeToString(node)})`);
     for (let i = 0; i < node.ports.length; i++) {
       const port = node.ports[i];
       console.log(`  Port ${i}: ${port.isPositive ? 'positive' : 'negative'}`);
-      console.log(`    -> linked to: ${nodeToString(port.link?.node)}:${port.link?.index ?? 'none'}`);
-      console.log(`    -> uplinked to: ${nodeToString(port.uplink?.node)}:${port.uplink?.index ?? 'none'}`);
+      console.log(`    -> linked to: Node(id=${port.link?.node._id} type=${nodeToString(port.link?.node)} index=${port.link?.index ?? 'none'})`);
+      console.log(`    -> uplinked to: Node(id=${port.link?.node._id} type=${nodeToString(port.uplink?.node)} index=${port.uplink?.index ?? 'none'})`);
     }
   }
-  console.log(`\nActive pairs: ${net.active.size}`);
+  console.log(`\nActive pairs: ${net.active.size}\n`);
 }
 
 module.exports = { printNet };

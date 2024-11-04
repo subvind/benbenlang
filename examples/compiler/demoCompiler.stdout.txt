@@ -1,92 +1,107 @@
-Reduction statistics: {
-  steps: 0,
-  duration: 0,
-  statistics: { reductions: 0, createdNodes: 1, deletedNodes: 0 }
-}
-5
-[DEBUG] Created node: Node(id=1, type=NUM, ports=0)
-Reduction statistics: {
-  steps: 0,
-  duration: 0,
-  statistics: { reductions: 0, createdNodes: 2, deletedNodes: 0 }
-}
-4
-[DEBUG] Created node: Node(id=2, type=NUM, ports=0)
-Reduction statistics: {
-  steps: 0,
-  duration: 0,
-  statistics: { reductions: 0, createdNodes: 3, deletedNodes: 0 }
-}
-10
-[DEBUG] Created node: Node(id=3, type=NUM, ports=0)
-Reduction statistics: {
-  steps: 0,
-  duration: 0,
-  statistics: { reductions: 0, createdNodes: 4, deletedNodes: 0 }
-}
-15
-[DEBUG] Created node: Node(id=4, type=APP, ports=0)
-[DEBUG] Created node: Node(id=5, type=APP, ports=0)
-[DEBUG] Created node: Node(id=6, type=APP, ports=0)
+
+=== Basic Arithmetic ===
+
+Testing: 5
+Result: 5
+Expected: 5
+Pass: true
+
+Testing: let x = 5 in x
+Result: 5
+Expected: 5
+Pass: true
+
+Testing: let x = 3 + 2 in x
+Result: 5
+Expected: 5
+Pass: true
+
+Testing: let x = 4 in let y = 3 in x + y
+Result: 5
+Expected: 7
+Pass: false
+
+=== Operators ===
+
+Testing: 3 + 5
+Result: 8
+Expected: 8
+Pass: true
+
+Testing: 10 - 4
+Result: 6
+Expected: 6
+Pass: true
+
+Testing: 3 * 4
+Result: 12
+Expected: 12
+Pass: true
+
+Testing: 8 / 2
+Result: 4
+Expected: 4
+Pass: true
+
+=== Nested Expressions ===
+
+Testing: let x = 2 + 3 in x * 4
+Result: 5
+Expected: 20
+Pass: false
+
+Testing: let x = 10 in let y = x / 2 in y + 1
+Result: 1
+Expected: 6
+Pass: false
+
+=== Lambda Functions ===
+
+Testing: let id = \x -> x in id 42
+Result: 42
+Expected: 42
+Pass: true
+
+Testing: let add = \x -> \y -> x + y in (add 3) 4
 Error during execution: Error: Undefined variable: (
-    at Compiler.compileVariable (/home/travis/Projects/benbenlang/src/compiler.js:191:13)
-    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:148:21)
-    at Compiler.compileApplication (/home/travis/Projects/benbenlang/src/compiler.js:211:23)
-    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:150:21)
-    at Compiler.compileApplication (/home/travis/Projects/benbenlang/src/compiler.js:211:23)
-    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:150:21)
-    at Compiler.compileApplication (/home/travis/Projects/benbenlang/src/compiler.js:211:23)
-    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:150:21)
-    at MinimalLambda.compile (/home/travis/Projects/benbenlang/src/compiler.js:276:21)
-    at MinimalLambda.run (/home/travis/Projects/benbenlang/src/compiler.js:281:29)
-null
-[DEBUG] Created node: Node(id=7, type=NUM, ports=0)
-[DEBUG] Created node: Node(id=8, type=APP, ports=0)
-[DEBUG] Created node: Node(id=9, type=APP, ports=0)
-[DEBUG] Created node: Node(id=10, type=DUP, ports=0)
-[DEBUG] Added active pair: Node(id=10, type=DUP, ports=3) - Node(id=7, type=NUM, ports=1, value=5)
-[DEBUG] Created node: Node(id=11, type=OPE, ports=0)
-[DEBUG] Created node: Node(id=12, type=NUM, ports=0)
-[DEBUG] Created node: Node(id=13, type=NUM, ports=0)
-[DEBUG] Created node: Node(id=14, type=NUM, ports=0)
-[DEBUG] Deleted node: Node(id=7, type=NUM, ports=1, value=5)
-[DEBUG] Deleted node: Node(id=10, type=DUP, ports=3)
-Reduction statistics: {
-  steps: 1,
-  duration: 1,
-  statistics: { reductions: 1, createdNodes: 15, deletedNodes: 2 }
-}
-null
-[DEBUG] Created node: Node(id=15, type=LAM, ports=0)
-[DEBUG] Created node: Node(id=16, type=DUP, ports=0)
-[DEBUG] Added active pair: Node(id=15, type=LAM, ports=2) - Node(id=16, type=DUP, ports=3)
-[DEBUG] Created node: Node(id=17, type=APP, ports=0)
-[DEBUG] Created node: Node(id=18, type=DUP, ports=0)
-[DEBUG] Added active pair: Node(id=18, type=DUP, ports=3) - Node(id=15, type=LAM, ports=2)
-[DEBUG] Created node: Node(id=19, type=NUM, ports=0)
-[DEBUG] Created node: Node(id=20, type=LAM, ports=0)
-[DEBUG] Created node: Node(id=21, type=LAM, ports=0)
-[DEBUG] Created node: Node(id=22, type=DUP, ports=0)
-[DEBUG] Deleted node: Node(id=16, type=DUP, ports=3)
-[DEBUG] Deleted node: Node(id=15, type=LAM, ports=2)
-[DEBUG] Invalid active pair, skipping reduction
-Reduction statistics: {
-  steps: 2,
-  duration: 0,
-  statistics: { reductions: 2, createdNodes: 23, deletedNodes: 4 }
-}
-null
-[DEBUG] Created node: Node(id=23, type=SWI, ports=0)
-[DEBUG] Created node: Node(id=24, type=BOOL, ports=0)
-[DEBUG] Created node: Node(id=25, type=NUM, ports=0)
-[DEBUG] Created node: Node(id=26, type=NUM, ports=0)
-[DEBUG] Added active pair: Node(id=23, type=SWI, ports=3) - Node(id=24, type=BOOL, ports=1, value=true)
-[DEBUG] Created node: Node(id=27, type=ERA, ports=0)
-[DEBUG] Deleted node: Node(id=23, type=SWI, ports=3)
-[DEBUG] Deleted node: Node(id=24, type=BOOL, ports=1, value=true)
-Reduction statistics: {
-  steps: 1,
-  duration: 0,
-  statistics: { reductions: 3, createdNodes: 28, deletedNodes: 6 }
-}
-null
+    at Compiler.compileVariable (/home/travis/Projects/benbenlang/src/compiler.js:212:13)
+    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:169:21)
+    at Compiler.compileApplication (/home/travis/Projects/benbenlang/src/compiler.js:243:23)
+    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:171:21)
+    at Compiler.compileLet (/home/travis/Projects/benbenlang/src/compiler.js:255:23)
+    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:173:21)
+    at MinimalLambda.compile (/home/travis/Projects/benbenlang/src/compiler.js:328:21)
+    at MinimalLambda.run (/home/travis/Projects/benbenlang/src/compiler.js:333:29)
+    at runTest (/home/travis/Projects/benbenlang/examples/compiler/demoCompiler.js:9:25)
+    at Object.<anonymous> (/home/travis/Projects/benbenlang/examples/compiler/demoCompiler.js:44:1)
+Result: null
+Expected: 7
+Pass: false
+
+=== Conditionals ===
+
+Testing: if true then 1 else 2
+Result: 2
+Expected: 1
+Pass: false
+
+Testing: if false then 1 else 2
+Result: 1
+Expected: 2
+Pass: false
+
+Testing: let x = 5 in if x > 3 then 1 else 0
+Error during execution: Error: Undefined variable: >
+    at Compiler.compileVariable (/home/travis/Projects/benbenlang/src/compiler.js:212:13)
+    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:169:21)
+    at Compiler.compileApplication (/home/travis/Projects/benbenlang/src/compiler.js:243:23)
+    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:171:21)
+    at Compiler.compileApplication (/home/travis/Projects/benbenlang/src/compiler.js:244:22)
+    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:171:21)
+    at Compiler.compileIf (/home/travis/Projects/benbenlang/src/compiler.js:275:28)
+    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:179:21)
+    at Compiler.compileLet (/home/travis/Projects/benbenlang/src/compiler.js:255:23)
+    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:173:21)
+Result: null
+Expected: 1
+Pass: false

@@ -1,4 +1,5 @@
 // A minimal functional language compiler targeting interaction nets
+const { printNet } = require('../helpers/printNet.js');
 const { InteractionNet, NodeType } = require('./vm.js');
 
 // AST node types
@@ -89,10 +90,30 @@ class Parser {
       };
     } else if (this.peek() && this.peek().match(/^\d+$/)) {
       // Number literal
-      return {
+      const left = {
         type: ASTType.NUMBER,
         value: parseInt(this.consume())
       };
+      
+      // Check for operator
+      if (this.peek() && this.peek().match(/^[+\-*\/]$/)) {
+        const operator = this.consume();
+        const right = this.parseTerm();
+        return {
+          type: ASTType.APPLICATION,
+          func: {
+            type: ASTType.OPERATOR,
+            operator
+          },
+          arg: {
+            type: ASTType.APPLICATION,
+            func: left,
+            arg: right
+          }
+        };
+      }
+
+      return left;
     } else if (this.peek() === 'true' || this.peek() === 'false') {
       // Boolean literal
       return {
@@ -194,19 +215,30 @@ class Compiler {
     this.net.connect(dup.ports[0], binding);
     return dup;
   }
-
+  
   compileApplication(ast) {
     if (ast.func.type === ASTType.OPERATOR) {
-      // For operator applications, create the operation node
       const op = this.compileOperator(ast.func);
-      const arg = this.compile(ast.arg);
       
-      // Connect argument to operation
-      this.net.connect(op.ports[1], arg.ports[0]);
+      // For binary operators like addition
+      if (ast.arg.type === ASTType.APPLICATION) {
+        // First operand
+        const firstArg = this.compile(ast.arg.func);
+        this.net.connect(op.ports[1], firstArg.ports[0]);
+        
+        // Second operand
+        const secondArg = this.compile(ast.arg.arg);
+        this.net.connect(op.ports[2], secondArg.ports[0]);
+      } else {
+        // Handle single argument case
+        const arg = this.compile(ast.arg);
+        this.net.connect(op.ports[1], arg.ports[0]);
+      }
+      
       return op;
     }
 
-    // Regular application handling
+    // Regular application handling (unchanged)
     const app = this.net.createApp();
     const func = this.compile(ast.func);
     const arg = this.compile(ast.arg);
@@ -230,7 +262,8 @@ class Compiler {
   }
 
   compileNumber(ast) {
-    return this.net.createNum(ast.value);
+    const numNode = this.net.createNum(ast.value);
+    return numNode;
   }
 
   compileBoolean(ast) {
@@ -251,16 +284,35 @@ class Compiler {
   }
 
   compileOperator(ast) {
-    // Create operation node with correct operation type
-    let opType;
-    switch (ast.operator) {
-      case '+': opType = 'add'; break;
-      case '-': opType = 'sub'; break;
-      case '*': opType = 'mul'; break;
-      case '/': opType = 'div'; break;
-      default: throw new Error(`Unknown operator: ${ast.operator}`);
+    // Map AST operator symbols to internal operation names
+    const operatorMap = {
+      '+': 'add',
+      '-': 'sub',
+      '*': 'mul',
+      '/': 'div',
+      '&&': 'and',
+      '||': 'or',
+      '!': 'not'
+    };
+
+    const operation = operatorMap[ast.operator];
+    if (!operation) {
+      throw new Error(`Unknown operator: ${ast.operator}`);
     }
-    return this.net.createOp(opType);
+
+    const opNode = this.net.createOp(ast.operator);
+
+    // Initialize metadata for storing operands
+    opNode.metadata = {
+      operator: operation,
+      firstOperand: null
+    };
+  
+    // Create a result port connection
+    const resultPort = this.net.createDup();
+    this.net.connect(opNode.ports[0], resultPort.ports[0]);
+
+    return opNode;
   }
 }
 
@@ -276,47 +328,67 @@ class MinimalLambda {
     return compiler.compile(ast);
   }
 
-  run(code) {
+  run(code, isDebug = true) {
     try {
       const mainNode = this.compile(code);
-      this.net.setDebugMode(true); // Enable debugging
+      this.net.setDebugMode(isDebug); // Enable debugging
+      if (this.net.debugMode) {
+        console.log('=== BEFORE ====');
+        printNet(this.net);
+      }
       const result = this.net.normalForm();
-      console.log('Reduction statistics:', result);
-      return this.extractResult(mainNode);
+      if (this.net.debugMode) {
+        console.log('=== AFTER ====');
+        printNet(this.net);
+        console.log('Reduction statistics:', result);
+      }
+      return this.extractResult(mainNode, this.net);
     } catch (error) {
       console.error('Error during execution:', error);
       return null;
     }
   }
 
-  extractResult(node) {
-    // Follow connections to find the final result node
-    let current = node;
+  extractResult(startNode, net) {
     let visited = new Set();
+    let numberNodes = new Set();
     
-    while (current && !visited.has(current)) {
-      visited.add(current);
-      
-      // For arithmetic operations, traverse through operation nodes
-      if (current.type === NodeType.OPE) {
-        if (current.metadata.firstOperand !== undefined && current.ports[0].link) {
-          current = current.ports[0].link.node;
-          continue;
+    // First collect all NUM nodes that are still connected in the network
+    for (const node of net.nodes) {
+      if (node.type === NodeType.NUM) {
+        if (node.ports[0].link || node.ports[0].uplink) {
+          numberNodes.add(node);
         }
       }
-
-      if (current.type === NodeType.NUM || current.type === NodeType.BOOL) {
-        return current.value;
+    }
+    
+    // If we have no connected numbers, find the most recently created one
+    if (numberNodes.size === 0) {
+      let highestId = -1;
+      let resultNode = null;
+      
+      for (const node of net.nodes) {
+        if (node.type === NodeType.NUM && node._id > highestId) {
+          highestId = node._id;
+          resultNode = node;
+        }
       }
       
-      if (current.ports[0] && current.ports[0].link) {
-        current = current.ports[0].link.node;
-      } else {
-        break;
+      return resultNode ? resultNode.value : null;
+    }
+    
+    // Of the connected numbers, return the most recently created one
+    let highestId = -1;
+    let resultNode = null;
+    
+    for (const node of numberNodes) {
+      if (node._id > highestId) {
+        highestId = node._id;
+        resultNode = node;
       }
     }
-
-    return null;
+    
+    return resultNode ? resultNode.value : null;
   }
 }
 

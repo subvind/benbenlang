@@ -13,7 +13,6 @@ const ASTType = {
   OPERATOR: 'OPERATOR' // Built-in operators
 };
 
-// Parser for our minimal language
 class Parser {
   constructor(code) {
     this.code = code;
@@ -88,7 +87,7 @@ class Parser {
         thenBranch,
         elseBranch
       };
-    } else if (this.peek().match(/^\d+$/)) {
+    } else if (this.peek() && this.peek().match(/^\d+$/)) {
       // Number literal
       return {
         type: ASTType.NUMBER,
@@ -100,30 +99,33 @@ class Parser {
         type: ASTType.BOOLEAN,
         value: this.consume() === 'true'
       };
-    } else if (this.peek().match(/^[+\-*\/]$/)) {
+    } else if (this.peek() && this.peek().match(/^[+\-*\/]$/)) {
       // Operator
       return {
         type: ASTType.OPERATOR,
         operator: this.consume()
       };
-    } else {
+    } else if (this.peek()) {
       // Variable or application
-      const term = {
+      const left = {
         type: ASTType.VARIABLE,
         name: this.consume()
       };
 
-      // Check for application
-      if (this.peek() && ![')', 'in', 'then', 'else'].includes(this.peek())) {
-        return {
+      // Keep building applications as long as there are more terms
+      let result = left;
+      while (this.peek() && ![')', 'in', 'then', 'else'].includes(this.peek())) {
+        result = {
           type: ASTType.APPLICATION,
-          func: term,
+          func: result,
           arg: this.parseTerm()
         };
       }
 
-      return term;
+      return result;
     }
+    
+    throw new Error('Unexpected end of input');
   }
 
   parse() {
@@ -180,7 +182,6 @@ class Compiler {
     } else {
       this.environment.delete(ast.param);
     }
-    
     return lambda;
   }
 
@@ -189,8 +190,6 @@ class Compiler {
     if (!binding) {
       throw new Error(`Undefined variable: ${ast.name}`);
     }
-    
-    // Create duplicator for variable use
     const dup = this.net.createDup();
     this.net.connect(dup.ports[0], binding);
     return dup;
@@ -201,32 +200,38 @@ class Compiler {
     const func = this.compile(ast.func);
     const arg = this.compile(ast.arg);
     
+    // For operators, we need special handling
+    if (ast.func.type === ASTType.OPERATOR) {
+      const op = this.net.createOp(this.getOperatorName(ast.func.operator));
+      this.net.connect(op.ports[1], arg.ports[0]);
+      return op;
+    }
+    
     this.net.connect(app.ports[1], func.ports[0]);
     this.net.connect(app.ports[2], arg.ports[0]);
-    
     return app;
   }
 
+  getOperatorName(op) {
+    switch (op) {
+      case '+': return 'add';
+      case '-': return 'sub';
+      case '*': return 'mul';
+      case '/': return 'div';
+      default: throw new Error(`Unknown operator: ${op}`);
+    }
+  }
+
   compileLet(ast) {
-    // Compile the value
     const value = this.compile(ast.value);
-    
-    // Save current binding for the name
     const oldBinding = this.environment.get(ast.name);
-    
-    // Bind name to the value
     this.environment.set(ast.name, value.ports[0]);
-    
-    // Compile body
     const body = this.compile(ast.body);
-    
-    // Restore old binding
     if (oldBinding) {
       this.environment.set(ast.name, oldBinding);
     } else {
       this.environment.delete(ast.name);
     }
-    
     return body;
   }
 
@@ -252,23 +257,10 @@ class Compiler {
   }
 
   compileOperator(ast) {
-    // Create specific operator nodes based on the operator type
-    switch(ast.operator) {
-      case '+':
-        return this.net.createOp('add');
-      case '-':
-        return this.net.createOp('sub');
-      case '*':
-        return this.net.createOp('mul');
-      case '/':
-        return this.net.createOp('div');
-      default:
-        throw new Error(`Unknown operator: ${ast.operator}`);
-    }
+    return this.net.createOp(this.getOperatorName(ast.operator));
   }
 }
 
-// Main interface to compile and run programs
 class MinimalLambda {
   constructor() {
     this.net = new InteractionNet();
@@ -282,33 +274,49 @@ class MinimalLambda {
   }
 
   run(code) {
-    const mainNode = this.compile(code);
-    this.net.normalForm();
-    return this.extractResult(mainNode);
+    try {
+      const mainNode = this.compile(code);
+      this.net.setDebugMode(true); // Enable debugging
+      const result = this.net.normalForm();
+      console.log('Reduction statistics:', result);
+      return this.extractResult(mainNode);
+    } catch (error) {
+      console.error('Error during execution:', error);
+      return null;
+    }
   }
 
   extractResult(node) {
     // Follow connections to find the final result node
     let current = node;
-    while (current && current.ports[0] && current.ports[0].link) {
-      current = current.ports[0].link.node;
+    let visited = new Set();
+    
+    while (current && !visited.has(current)) {
+      visited.add(current);
+      
+      if (current.type === NodeType.NUM || current.type === NodeType.BOOL) {
+        return current.value;
+      }
+      
+      if (current.ports[0] && current.ports[0].link) {
+        current = current.ports[0].link.node;
+      } else {
+        break;
+      }
     }
 
-    if (!current) return null;
-
-    // Extract value based on node type
-    switch (current.type) {
-      case NodeType.NUM:
+    if (current) {
+      console.error('Final node type:', current.type);
+      if (current.type === NodeType.NUM) {
         return current.value;
-      case NodeType.BOOL:
+      } else if (current.type === NodeType.BOOL) {
         return current.value;
-      case NodeType.LAM:
+      } else if (current.type === NodeType.LAM) {
         return '<function>';
-      default:
-        // For debugging
-        console.error('Unexpected result node type:', current.type);
-        return null;
+      }
     }
+    
+    return null;
   }
 }
 

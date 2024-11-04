@@ -1,4 +1,41 @@
-Unexpected result node type: APP
+[DEBUG] Created node: Node(id=NaN, type=NUM, ports=0)
+[DEBUG] Created node: Node(id=NaN, type=NUM, ports=0)
+Reduction statistics: {
+  steps: 1,
+  duration: 4,
+  statistics: { reductions: 1, createdNodes: 8, deletedNodes: 0 }
+}
+Final node type: APP
 null
-Unexpected result node type: APP
+[DEBUG] Created node: Node(id=NaN, type=LAM, ports=0)
+[DEBUG] Created node: Node(id=NaN, type=DUP, ports=0)
+[DEBUG] Added active pair: Node(id=NaN, type=LAM, ports=2) - Node(id=NaN, type=DUP, ports=3)
+[DEBUG] Created node: Node(id=NaN, type=APP, ports=0)
+[DEBUG] Created node: Node(id=NaN, type=DUP, ports=0)
+[DEBUG] Added active pair: Node(id=NaN, type=DUP, ports=3) - Node(id=NaN, type=LAM, ports=2)
+[DEBUG] Created node: Node(id=NaN, type=NUM, ports=0)
+[DEBUG] Created node: Node(id=NaN, type=LAM, ports=0)
+[DEBUG] Created node: Node(id=NaN, type=LAM, ports=0)
+[DEBUG] Created node: Node(id=NaN, type=DUP, ports=0)
+[DEBUG] Created node: Node(id=NaN, type=LAM, ports=0)
+[DEBUG] Created node: Node(id=NaN, type=LAM, ports=0)
+[DEBUG] Created node: Node(id=NaN, type=DUP, ports=0)
+Reduction statistics: {
+  steps: 2,
+  duration: 0,
+  statistics: { reductions: 3, createdNodes: 19, deletedNodes: 0 }
+}
+Final node type: APP
 null
+[DEBUG] Created node: Node(id=NaN, type=SWI, ports=0)
+[DEBUG] Created node: Node(id=NaN, type=BOOL, ports=0)
+[DEBUG] Created node: Node(id=NaN, type=NUM, ports=0)
+[DEBUG] Created node: Node(id=NaN, type=NUM, ports=0)
+[DEBUG] Added active pair: Node(id=NaN, type=SWI, ports=3) - Node(id=NaN, type=BOOL, ports=1)
+[DEBUG] Created node: Node(id=NaN, type=ERA, ports=0)
+Reduction statistics: {
+  steps: 1,
+  duration: 0,
+  statistics: { reductions: 4, createdNodes: 24, deletedNodes: 0 }
+}
+true

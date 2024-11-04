@@ -30,7 +30,7 @@ Active pairs: 1
 Current network state:
 Node NUM:
   Port 0: negative
-    -> linked to: SWI:1
+    -> linked to: none:none
     -> uplinked to: none:none
 Node NUM:
   Port 0: negative
@@ -38,7 +38,7 @@ Node NUM:
     -> uplinked to: none:none
 Node ERA:
   Port 0: negative
-    -> linked to: SWI:2
+    -> linked to: none:none
     -> uplinked to: none:none
 
 Active pairs: 0

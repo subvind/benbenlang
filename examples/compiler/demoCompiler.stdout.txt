@@ -3,78 +3,90 @@ Reduction statistics: {
   duration: 0,
   statistics: { reductions: 0, createdNodes: 1, deletedNodes: 0 }
 }
-Addition: 5
+5
 [DEBUG] Created node: Node(id=1, type=NUM, ports=0)
 Reduction statistics: {
   steps: 0,
   duration: 0,
   statistics: { reductions: 0, createdNodes: 2, deletedNodes: 0 }
 }
-Multiplication: 4
+4
 [DEBUG] Created node: Node(id=2, type=NUM, ports=0)
 Reduction statistics: {
   steps: 0,
   duration: 0,
   statistics: { reductions: 0, createdNodes: 3, deletedNodes: 0 }
 }
-Subtraction: 10
+10
 [DEBUG] Created node: Node(id=3, type=NUM, ports=0)
 Reduction statistics: {
   steps: 0,
   duration: 0,
   statistics: { reductions: 0, createdNodes: 4, deletedNodes: 0 }
 }
-Division: 15
-[DEBUG] Created node: Node(id=4, type=NUM, ports=0)
+15
+[DEBUG] Created node: Node(id=4, type=APP, ports=0)
 [DEBUG] Created node: Node(id=5, type=APP, ports=0)
 [DEBUG] Created node: Node(id=6, type=APP, ports=0)
-[DEBUG] Created node: Node(id=7, type=DUP, ports=0)
-[DEBUG] Added active pair: Node(id=7, type=DUP, ports=3) - Node(id=4, type=NUM, ports=1, value=5)
-[DEBUG] Created node: Node(id=8, type=OPE, ports=0)
-[DEBUG] Created node: Node(id=9, type=NUM, ports=0)
-[DEBUG] Created node: Node(id=10, type=NUM, ports=0)
-[DEBUG] Created node: Node(id=11, type=NUM, ports=0)
-[DEBUG] Deleted node: Node(id=4, type=NUM, ports=1, value=5)
-[DEBUG] Deleted node: Node(id=7, type=DUP, ports=3)
+Error during execution: Error: Undefined variable: (
+    at Compiler.compileVariable (/home/travis/Projects/benbenlang/src/compiler.js:191:13)
+    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:148:21)
+    at Compiler.compileApplication (/home/travis/Projects/benbenlang/src/compiler.js:211:23)
+    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:150:21)
+    at Compiler.compileApplication (/home/travis/Projects/benbenlang/src/compiler.js:211:23)
+    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:150:21)
+    at Compiler.compileApplication (/home/travis/Projects/benbenlang/src/compiler.js:211:23)
+    at Compiler.compile (/home/travis/Projects/benbenlang/src/compiler.js:150:21)
+    at MinimalLambda.compile (/home/travis/Projects/benbenlang/src/compiler.js:276:21)
+    at MinimalLambda.run (/home/travis/Projects/benbenlang/src/compiler.js:281:29)
+null
+[DEBUG] Created node: Node(id=7, type=NUM, ports=0)
+[DEBUG] Created node: Node(id=8, type=APP, ports=0)
+[DEBUG] Created node: Node(id=9, type=APP, ports=0)
+[DEBUG] Created node: Node(id=10, type=DUP, ports=0)
+[DEBUG] Added active pair: Node(id=10, type=DUP, ports=3) - Node(id=7, type=NUM, ports=1, value=5)
+[DEBUG] Created node: Node(id=11, type=OPE, ports=0)
+[DEBUG] Created node: Node(id=12, type=NUM, ports=0)
+[DEBUG] Created node: Node(id=13, type=NUM, ports=0)
+[DEBUG] Created node: Node(id=14, type=NUM, ports=0)
+[DEBUG] Deleted node: Node(id=7, type=NUM, ports=1, value=5)
+[DEBUG] Deleted node: Node(id=10, type=DUP, ports=3)
 Reduction statistics: {
   steps: 1,
   duration: 1,
-  statistics: { reductions: 1, createdNodes: 12, deletedNodes: 2 }
+  statistics: { reductions: 1, createdNodes: 15, deletedNodes: 2 }
 }
-Final node type: APP
 null
-[DEBUG] Created node: Node(id=12, type=LAM, ports=0)
-[DEBUG] Created node: Node(id=13, type=DUP, ports=0)
-[DEBUG] Added active pair: Node(id=12, type=LAM, ports=2) - Node(id=13, type=DUP, ports=3)
-[DEBUG] Created node: Node(id=14, type=APP, ports=0)
-[DEBUG] Created node: Node(id=15, type=DUP, ports=0)
-[DEBUG] Added active pair: Node(id=15, type=DUP, ports=3) - Node(id=12, type=LAM, ports=2)
-[DEBUG] Created node: Node(id=16, type=NUM, ports=0)
-[DEBUG] Created node: Node(id=17, type=LAM, ports=0)
-[DEBUG] Created node: Node(id=18, type=LAM, ports=0)
-[DEBUG] Created node: Node(id=19, type=DUP, ports=0)
-[DEBUG] Deleted node: Node(id=13, type=DUP, ports=3)
-[DEBUG] Deleted node: Node(id=12, type=LAM, ports=2)
+[DEBUG] Created node: Node(id=15, type=LAM, ports=0)
+[DEBUG] Created node: Node(id=16, type=DUP, ports=0)
+[DEBUG] Added active pair: Node(id=15, type=LAM, ports=2) - Node(id=16, type=DUP, ports=3)
+[DEBUG] Created node: Node(id=17, type=APP, ports=0)
+[DEBUG] Created node: Node(id=18, type=DUP, ports=0)
+[DEBUG] Added active pair: Node(id=18, type=DUP, ports=3) - Node(id=15, type=LAM, ports=2)
+[DEBUG] Created node: Node(id=19, type=NUM, ports=0)
+[DEBUG] Created node: Node(id=20, type=LAM, ports=0)
+[DEBUG] Created node: Node(id=21, type=LAM, ports=0)
+[DEBUG] Created node: Node(id=22, type=DUP, ports=0)
+[DEBUG] Deleted node: Node(id=16, type=DUP, ports=3)
+[DEBUG] Deleted node: Node(id=15, type=LAM, ports=2)
 [DEBUG] Invalid active pair, skipping reduction
 Reduction statistics: {
   steps: 2,
   duration: 0,
-  statistics: { reductions: 2, createdNodes: 20, deletedNodes: 4 }
+  statistics: { reductions: 2, createdNodes: 23, deletedNodes: 4 }
 }
-Final node type: APP
 null
-[DEBUG] Created node: Node(id=20, type=SWI, ports=0)
-[DEBUG] Created node: Node(id=21, type=BOOL, ports=0)
-[DEBUG] Created node: Node(id=22, type=NUM, ports=0)
-[DEBUG] Created node: Node(id=23, type=NUM, ports=0)
-[DEBUG] Added active pair: Node(id=20, type=SWI, ports=3) - Node(id=21, type=BOOL, ports=1, value=true)
-[DEBUG] Created node: Node(id=24, type=ERA, ports=0)
-[DEBUG] Deleted node: Node(id=20, type=SWI, ports=3)
-[DEBUG] Deleted node: Node(id=21, type=BOOL, ports=1, value=true)
+[DEBUG] Created node: Node(id=23, type=SWI, ports=0)
+[DEBUG] Created node: Node(id=24, type=BOOL, ports=0)
+[DEBUG] Created node: Node(id=25, type=NUM, ports=0)
+[DEBUG] Created node: Node(id=26, type=NUM, ports=0)
+[DEBUG] Added active pair: Node(id=23, type=SWI, ports=3) - Node(id=24, type=BOOL, ports=1, value=true)
+[DEBUG] Created node: Node(id=27, type=ERA, ports=0)
+[DEBUG] Deleted node: Node(id=23, type=SWI, ports=3)
+[DEBUG] Deleted node: Node(id=24, type=BOOL, ports=1, value=true)
 Reduction statistics: {
   steps: 1,
   duration: 0,
-  statistics: { reductions: 3, createdNodes: 25, deletedNodes: 6 }
+  statistics: { reductions: 3, createdNodes: 28, deletedNodes: 6 }
 }
-Final node type: SWI
 null

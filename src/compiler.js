@@ -196,30 +196,24 @@ class Compiler {
   }
 
   compileApplication(ast) {
+    if (ast.func.type === ASTType.OPERATOR) {
+      // For operator applications, create the operation node
+      const op = this.compileOperator(ast.func);
+      const arg = this.compile(ast.arg);
+      
+      // Connect argument to operation
+      this.net.connect(op.ports[1], arg.ports[0]);
+      return op;
+    }
+
+    // Regular application handling
     const app = this.net.createApp();
     const func = this.compile(ast.func);
     const arg = this.compile(ast.arg);
     
-    // For operators, we need special handling
-    if (ast.func.type === ASTType.OPERATOR) {
-      const op = this.net.createOp(this.getOperatorName(ast.func.operator));
-      this.net.connect(op.ports[1], arg.ports[0]);
-      return op;
-    }
-    
     this.net.connect(app.ports[1], func.ports[0]);
     this.net.connect(app.ports[2], arg.ports[0]);
     return app;
-  }
-
-  getOperatorName(op) {
-    switch (op) {
-      case '+': return 'add';
-      case '-': return 'sub';
-      case '*': return 'mul';
-      case '/': return 'div';
-      default: throw new Error(`Unknown operator: ${op}`);
-    }
   }
 
   compileLet(ast) {
@@ -257,7 +251,16 @@ class Compiler {
   }
 
   compileOperator(ast) {
-    return this.net.createOp(this.getOperatorName(ast.operator));
+    // Create operation node with correct operation type
+    let opType;
+    switch (ast.operator) {
+      case '+': opType = 'add'; break;
+      case '-': opType = 'sub'; break;
+      case '*': opType = 'mul'; break;
+      case '/': opType = 'div'; break;
+      default: throw new Error(`Unknown operator: ${ast.operator}`);
+    }
+    return this.net.createOp(opType);
   }
 }
 
@@ -294,6 +297,14 @@ class MinimalLambda {
     while (current && !visited.has(current)) {
       visited.add(current);
       
+      // For arithmetic operations, traverse through operation nodes
+      if (current.type === NodeType.OPE) {
+        if (current.metadata.firstOperand !== undefined && current.ports[0].link) {
+          current = current.ports[0].link.node;
+          continue;
+        }
+      }
+
       if (current.type === NodeType.NUM || current.type === NodeType.BOOL) {
         return current.value;
       }
@@ -305,17 +316,6 @@ class MinimalLambda {
       }
     }
 
-    if (current) {
-      console.error('Final node type:', current.type);
-      if (current.type === NodeType.NUM) {
-        return current.value;
-      } else if (current.type === NodeType.BOOL) {
-        return current.value;
-      } else if (current.type === NodeType.LAM) {
-        return '<function>';
-      }
-    }
-    
     return null;
   }
 }

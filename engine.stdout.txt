@@ -1,0 +1,6 @@
+Input term: ((λx.x) y)
+Reduced term: Application {
+  type: 'application',
+  func: Variable { type: 'variable', name: '_error_' },
+  arg: Variable { type: 'variable', name: '_error_' }
+}

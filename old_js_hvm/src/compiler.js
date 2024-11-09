@@ -186,16 +186,14 @@ class Compiler {
 
   compileLambda(ast) {
     const lambda = this.net.createLam();
-    
-    // Save current binding for the parameter
     const oldBinding = this.environment.get(ast.param);
     
-    // Bind parameter to the lambda's binding port
+    // Properly bind parameter
     this.environment.set(ast.param, lambda.ports[1]);
     
-    // Compile body
+    // Compile body with parameter in scope
     const body = this.compile(ast.body);
-    this.net.connect(lambda.ports[0], body.ports[0]);
+    this.net.connect(body.ports[0], lambda.ports[0]);
     
     // Restore old binding
     if (oldBinding) {
@@ -203,6 +201,7 @@ class Compiler {
     } else {
       this.environment.delete(ast.param);
     }
+    
     return lambda;
   }
 
@@ -220,19 +219,23 @@ class Compiler {
     if (ast.func.type === ASTType.OPERATOR) {
       const op = this.compileOperator(ast.func);
       
-      // For binary operators like addition
       if (ast.arg.type === ASTType.APPLICATION) {
-        // First operand
         const firstArg = this.compile(ast.arg.func);
-        this.net.connect(op.ports[1], firstArg.ports[0]);
-        
-        // Second operand
         const secondArg = this.compile(ast.arg.arg);
-        this.net.connect(op.ports[2], secondArg.ports[0]);
+        
+        const dup1 = this.net.createDup();
+        const dup2 = this.net.createDup();
+        
+        this.net.connect(firstArg.ports[0], dup1.ports[0]);
+        this.net.connect(secondArg.ports[0], dup2.ports[0]);
+        
+        this.net.connect(dup1.ports[1], op.ports[1]);
+        this.net.connect(dup2.ports[1], op.ports[2]);
       } else {
-        // Handle single argument case
         const arg = this.compile(ast.arg);
-        this.net.connect(op.ports[1], arg.ports[0]);
+        const dup = this.net.createDup();
+        this.net.connect(arg.ports[0], dup.ports[0]);
+        this.net.connect(dup.ports[1], op.ports[1]);
       }
       
       return op;
@@ -242,22 +245,40 @@ class Compiler {
     const app = this.net.createApp();
     const func = this.compile(ast.func);
     const arg = this.compile(ast.arg);
+
+    // Create duplicators for both function and argument
+    const dupFunc = this.net.createDup();
+    const dupArg = this.net.createDup();
     
-    this.net.connect(app.ports[1], func.ports[0]);
-    this.net.connect(app.ports[2], arg.ports[0]);
+    this.net.connect(func.ports[0], dupFunc.ports[0]);
+    this.net.connect(arg.ports[0], dupArg.ports[0]);
+    
+    this.net.connect(dupFunc.ports[1], app.ports[1]);
+    this.net.connect(dupArg.ports[1], app.ports[2]);
     return app;
   }
-
+  
   compileLet(ast) {
     const value = this.compile(ast.value);
     const oldBinding = this.environment.get(ast.name);
-    this.environment.set(ast.name, value.ports[0]);
+    
+    // Create a new duplicator to share the value
+    const dup = this.net.createDup();
+    this.net.connect(value.ports[0], dup.ports[0]);
+    
+    // Set the binding to one copy of the duplicator
+    this.environment.set(ast.name, dup.ports[1]);
+    
+    // Compile body with the binding in scope
     const body = this.compile(ast.body);
+    
+    // Restore old binding
     if (oldBinding) {
       this.environment.set(ast.name, oldBinding);
     } else {
       this.environment.delete(ast.name);
     }
+    
     return body;
   }
 
@@ -276,9 +297,9 @@ class Compiler {
     const thenBranch = this.compile(ast.thenBranch);
     const elseBranch = this.compile(ast.elseBranch);
     
-    this.net.connect(switch_node.ports[0], condition.ports[0]);
-    this.net.connect(switch_node.ports[1], thenBranch.ports[0]);
-    this.net.connect(switch_node.ports[2], elseBranch.ports[0]);
+    this.net.connect(condition.ports[0], switch_node.ports[0]);
+    this.net.connect(thenBranch.ports[0], switch_node.ports[1]);
+    this.net.connect(elseBranch.ports[0], switch_node.ports[2]);
     
     return switch_node;
   }
@@ -292,7 +313,12 @@ class Compiler {
       '/': 'div',
       '&&': 'and',
       '||': 'or',
-      '!': 'not'
+      '!': 'not',
+      '>': 'gt',
+      '<': 'lt',
+      '>=': 'gte',
+      '<=': 'lte',
+      '==': 'eq'
     };
 
     const operation = operatorMap[ast.operator];
@@ -309,8 +335,8 @@ class Compiler {
     };
   
     // Create a result port connection
-    const resultPort = this.net.createDup();
-    this.net.connect(opNode.ports[0], resultPort.ports[0]);
+    const resultPort = this.net.createDup(); // !IMPORTANT
+    this.net.connect(opNode.ports[0], resultPort.ports[0]); // !IMPORTANT
 
     return opNode;
   }

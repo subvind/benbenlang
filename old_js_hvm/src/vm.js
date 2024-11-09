@@ -266,7 +266,8 @@ class InteractionNet {
     // Initialize metadata
     node.metadata = {
       operator: operation,
-      firstOperand: null
+      firstOperand: null,
+      isOperator: true    // Flag to identify operator nodes
     };
 
     this.debug(`Created node: ${node}`);
@@ -787,6 +788,9 @@ class InteractionNet {
 
   // Reduce OPE-NUM interaction
   reduceOperationNum(op, num) {
+    // Store the operation type at the VM level
+    this.currentOperation = op.metadata.operator;
+
     // If this is the first number, store it and wait for second
     if (op.metadata.firstOperand === null) {
       op.metadata.firstOperand = num.value;
@@ -869,8 +873,16 @@ class InteractionNet {
   reduceNumDup(num, dup) {
     const newNum1 = this.createNum(num.value);
     const newNum2 = this.createNum(num.value);
+    
+    // Preserve operation metadata if it exists
+    if (num.metadata && num.metadata.operator) {
+      newNum1.metadata = { ...num.metadata };
+      newNum2.metadata = { ...num.metadata };
+    }
+    
     this.connect(newNum1.ports[0], dup.ports[1]);
     this.connect(newNum2.ports[0], dup.ports[2]);
+    
     this.deleteNode(num);
     this.deleteNode(dup);
   }
@@ -1029,12 +1041,21 @@ class InteractionNet {
   }
 
   evaluateConstants(val1, val2) {
-    // Simple arithmetic operations as an example
+    // Simple arithmetic operations based on operator type
     if (typeof val1 === 'number' && typeof val2 === 'number') {
-      return val1 + val2;
+      if (this.currentOperation) {
+        switch (this.currentOperation) {
+          case 'add': return val1 + val2;
+          case 'sub': return val1 - val2;
+          case 'mul': return val1 * val2;
+          case 'div': return Math.floor(val1 / val2);
+          default: return val1 + val2;  // Fallback to addition
+        }
+      }
+      return val1 + val2;  // Default behavior
     }
     if (typeof val1 === 'boolean' && typeof val2 === 'boolean') {
-      return val1 && val2; // Example boolean operation
+      return val1 && val2;
     }
     return null;
   }

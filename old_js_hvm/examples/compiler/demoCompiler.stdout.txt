@@ -1,0 +1,131 @@
+
+=== Operators ===
+
+Testing: 3 + 5
+=== BEFORE ====
+Current network state:
+Node(id=0 type=OPE(add))
+  Port 0: negative
+    -> linked to: Node(id=1 type=DUP index=0)
+    -> uplinked to: Node(id=1 type=none index=none)
+  Port 1: positive
+    -> linked to: Node(id=4 type=DUP index=1)
+    -> uplinked to: Node(id=4 type=none index=none)
+  Port 2: positive
+    -> linked to: Node(id=5 type=DUP index=1)
+    -> uplinked to: Node(id=5 type=none index=none)
+Node(id=1 type=DUP)
+  Port 0: negative
+    -> linked to: Node(id=0 type=OPE(add) index=0)
+    -> uplinked to: Node(id=0 type=none index=none)
+  Port 1: positive
+    -> linked to: Node(id=undefined type=none index=none)
+    -> uplinked to: Node(id=undefined type=none index=none)
+  Port 2: positive
+    -> linked to: Node(id=undefined type=none index=none)
+    -> uplinked to: Node(id=undefined type=none index=none)
+Node(id=2 type=NUM(3))
+  Port 0: negative
+    -> linked to: Node(id=4 type=DUP index=0)
+    -> uplinked to: Node(id=4 type=none index=none)
+Node(id=3 type=NUM(5))
+  Port 0: negative
+    -> linked to: Node(id=5 type=DUP index=0)
+    -> uplinked to: Node(id=5 type=none index=none)
+Node(id=4 type=DUP)
+  Port 0: negative
+    -> linked to: Node(id=2 type=NUM(3) index=0)
+    -> uplinked to: Node(id=2 type=none index=none)
+  Port 1: positive
+    -> linked to: Node(id=0 type=OPE(add) index=1)
+    -> uplinked to: Node(id=0 type=none index=none)
+  Port 2: positive
+    -> linked to: Node(id=undefined type=none index=none)
+    -> uplinked to: Node(id=undefined type=none index=none)
+Node(id=5 type=DUP)
+  Port 0: negative
+    -> linked to: Node(id=3 type=NUM(5) index=0)
+    -> uplinked to: Node(id=3 type=none index=none)
+  Port 1: positive
+    -> linked to: Node(id=0 type=OPE(add) index=2)
+    -> uplinked to: Node(id=0 type=none index=none)
+  Port 2: positive
+    -> linked to: Node(id=undefined type=none index=none)
+    -> uplinked to: Node(id=undefined type=none index=none)
+
+Active pairs: 3
+
+[DEBUG] Created node: Node(id=6, type=OPE, ports=3, value=null)
+[DEBUG] Created node: Node(id=7, type=OPE, ports=3, value=null)
+[DEBUG] Created node: Node(id=8, type=DUP, ports=3, value=null)
+[DEBUG] Added active pair: Node(id=8, type=DUP, ports=3, value=null) - Node(id=1, type=DUP, ports=3, value=null)
+[DEBUG] Deleted node: Node(id=0, type=OPE, ports=3, value=null)
+[DEBUG] Deleted node: Node(id=1, type=DUP, ports=3, value=null)
+[DEBUG] Created node: Node(id=9, type=NUM, ports=1, value=3)
+[DEBUG] Created node: Node(id=10, type=NUM, ports=1, value=3)
+[DEBUG] Deleted node: Node(id=2, type=NUM, ports=1, value=3)
+[DEBUG] Deleted node: Node(id=4, type=DUP, ports=3, value=null)
+[DEBUG] Created node: Node(id=11, type=NUM, ports=1, value=5)
+[DEBUG] Created node: Node(id=12, type=NUM, ports=1, value=5)
+[DEBUG] Deleted node: Node(id=3, type=NUM, ports=1, value=5)
+[DEBUG] Deleted node: Node(id=5, type=DUP, ports=3, value=null)
+[DEBUG] Invalid active pair, skipping reduction
+=== AFTER ====
+Current network state:
+Node(id=6 type=OPE(add))
+  Port 0: negative
+    -> linked to: Node(id=8 type=DUP index=1)
+    -> uplinked to: Node(id=8 type=none index=none)
+  Port 1: positive
+    -> linked to: Node(id=undefined type=none index=none)
+    -> uplinked to: Node(id=undefined type=none index=none)
+  Port 2: positive
+    -> linked to: Node(id=undefined type=none index=none)
+    -> uplinked to: Node(id=undefined type=none index=none)
+Node(id=7 type=OPE(add))
+  Port 0: negative
+    -> linked to: Node(id=8 type=DUP index=2)
+    -> uplinked to: Node(id=8 type=none index=none)
+  Port 1: positive
+    -> linked to: Node(id=undefined type=none index=none)
+    -> uplinked to: Node(id=undefined type=none index=none)
+  Port 2: positive
+    -> linked to: Node(id=undefined type=none index=none)
+    -> uplinked to: Node(id=undefined type=none index=none)
+Node(id=8 type=DUP)
+  Port 0: negative
+    -> linked to: Node(id=1 type=DUP index=0)
+    -> uplinked to: Node(id=1 type=none index=none)
+  Port 1: positive
+    -> linked to: Node(id=6 type=OPE(add) index=0)
+    -> uplinked to: Node(id=6 type=none index=none)
+  Port 2: positive
+    -> linked to: Node(id=7 type=OPE(add) index=0)
+    -> uplinked to: Node(id=7 type=none index=none)
+Node(id=9 type=NUM(3))
+  Port 0: negative
+    -> linked to: Node(id=undefined type=none index=none)
+    -> uplinked to: Node(id=undefined type=none index=none)
+Node(id=10 type=NUM(3))
+  Port 0: negative
+    -> linked to: Node(id=undefined type=none index=none)
+    -> uplinked to: Node(id=undefined type=none index=none)
+Node(id=11 type=NUM(5))
+  Port 0: negative
+    -> linked to: Node(id=undefined type=none index=none)
+    -> uplinked to: Node(id=undefined type=none index=none)
+Node(id=12 type=NUM(5))
+  Port 0: negative
+    -> linked to: Node(id=undefined type=none index=none)
+    -> uplinked to: Node(id=undefined type=none index=none)
+
+Active pairs: 0
+
+Reduction statistics: {
+  steps: 4,
+  duration: 0,
+  statistics: { reductions: 3, createdNodes: 13, deletedNodes: 6 }
+}
+Result: 5
+Expected: 8
+Pass: false

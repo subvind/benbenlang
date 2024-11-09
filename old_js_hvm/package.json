@@ -1,0 +1,26 @@
+{
+  "name": "benbenlang",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "example:demoCompiler": "node ./examples/compiler/demoCompiler.js 2>&1 | tee ./examples/compiler/demoCompiler.stdout.txt",
+    "example:demo": "node ./examples/vm/demo.js 2>&1 | tee ./examples/vm/demo.stdout.txt",
+    "example:demoArithmetic": "node ./examples/vm/demoArithmetic.js 2>&1 | tee ./examples/vm/demoArithmetic.stdout.txt",
+    "example:demoBoolean": "node ./examples/vm/demoBoolean.js 2>&1 | tee ./examples/vm/demoBoolean.stdout.txt",
+    "example:demoConstant": "node ./examples/vm/demoConstant.js 2>&1 | tee ./examples/vm/demoConstant.stdout.txt",
+    "example:demoErasure": "node ./examples/vm/demoErasure.js 2>&1 | tee ./examples/vm/demoErasure.stdout.txt",
+    "example:demoFst": "node ./examples/vm/demoFst.js 2>&1 | tee ./examples/vm/demoFst.stdout.txt",
+    "example:demoIdentity": "node ./examples/vm/demoIdentity.js 2>&1 | tee ./examples/vm/demoIdentity.stdout.txt",
+    "example:demoListHead": "node ./examples/vm/demoListHead.js 2>&1 | tee ./examples/vm/demoListHead.stdout.txt",
+    "example:demoListOperations": "node ./examples/vm/demoListOperations.js 2>&1 | tee ./examples/vm/demoListOperations.stdout.txt",
+    "example:demoListTail": "node ./examples/vm/demoListTail.js 2>&1 | tee ./examples/vm/demoListTail.stdout.txt",
+    "example:demoPair": "node ./examples/vm/demoPair.js 2>&1 | tee ./examples/vm/demoPair.stdout.txt",
+    "example:demoSelfApp": "node ./examples/vm/demoSelfApp.js 2>&1 | tee ./examples/vm/demoSelfApp.stdout.txt",
+    "example:demoSnd": "node ./examples/vm/demoSnd.js 2>&1 | tee ./examples/vm/demoSnd.stdout.txt",
+    "example:demoString": "node ./examples/vm/demoString.js 2>&1 | tee ./examples/vm/demoString.stdout.txt",
+    "example:demoSwitch": "node ./examples/vm/demoSwitch.js 2>&1 | tee ./examples/vm/demoSwitch.stdout.txt"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "description": ""
+}

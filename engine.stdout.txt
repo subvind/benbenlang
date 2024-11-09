@@ -1,6 +1,12 @@
-Input term: ((λx.x) y)
-Reduced term: Application {
-  type: 'application',
-  func: Variable { type: 'variable', name: '_error_' },
-  arg: Variable { type: 'variable', name: '_error_' }
-}
+Interaction Net:
+variable: [application:1] 
+variable: [abstraction:0] 
+abstraction: [application:0] [free] 
+application: [abstraction:0] [variable:0] [free] 
+
+Reducing...
+After reduction:
+Interaction Net:
+variable: [free] 
+variable: [abstraction:0] 
+

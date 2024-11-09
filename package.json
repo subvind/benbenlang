@@ -4,7 +4,8 @@
   "description": "",
   "main": "./src/cli.js",
   "scripts": {
-    "engine": "node ./src/engine.js 2>&1 | tee ./engine.stdout.txt"
+    "engine": "node ./src/engine.js 2>&1 | tee ./engine.stdout.txt",
+    "test": "node ./tests/index.js"
   },
   "author": "",
   "license": "UNLICENSED"
